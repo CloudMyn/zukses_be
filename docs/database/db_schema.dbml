@@ -1,0 +1,903 @@
+// Tabel tb_Users
+Table tb_users {
+  id bigint [PK]
+  username varchar [unique]
+  email varchar [unique]
+  nomor_telepon varchar [unique, null]
+  kata_sandi varchar
+  tipe_user enum('ADMIN', 'PELANGGAN', 'PEDAGANG') [default: 'PELANGGAN']
+  status enum('AKTIF', 'TIDAK_AKTIF', 'DIBLOKIR', 'SUSPEND') [default: 'AKTIF']
+  email_terverifikasi_pada timestamp [null]
+  telepon_terverifikasi_pada timestamp [null]
+  terakhir_login_pada timestamp [null]
+  url_foto_profil varchar [null]
+  pengaturan json [null] // tema, notifikasi, privacy
+  // Profile fields merged from tb_user_profiles
+  nama_depan varchar [null]
+  nama_belakang varchar [null]
+  nama_lengkap varchar [null]
+  jenis_kelamin enum('LAKI_LAKI', 'PEREMPUAN', 'RAHASIA') [null]
+  tanggal_lahir date [null]
+  bio text [null]
+  url_media_sosial json [null] // instagram, facebook, twitter
+  bidang_interests json [null] // categories yang diikuti
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Penjual (Untuk User Tipe PEDAGANG)
+Table tb_penjual {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id]
+  nama_toko varchar [unique]
+  slug_toko varchar [unique]
+  deskripsi_toko text
+  logo_toko varchar [null]
+  banner_toko varchar [null]
+  nomor_ktp varchar [unique]
+  foto_ktp varchar [null]
+  nomor_npwp varchar [unique, null]
+  foto_npwp varchar [null]
+  jenis_usaha enum('INDIVIDU', 'PERUSAHAAN') [default: 'INDIVIDU']
+  status_verifikasi enum('MENUNGGU', 'TERVERIFIKASI', 'DITOLAK', 'PERLU_DIREVISI') [default: 'MENUNGGU']
+  tanggal_verifikasi date [null]
+  id_verifikator bigint [ref: > tb_users.id, null]
+  catatan_verifikasi text [null]
+  rating_toko decimal(3,2) [default: 0]
+  total_penjualan integer [default: 0]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Alamat (Multiple Addresses per User)
+Table tb_alamat {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id]
+  label_alamat varchar // "Rumah", "Kantor", "Gudang", dll
+  nama_penerima varchar
+  nomor_telepon_penerima varchar
+  alamat_lengkap text
+  id_provinsi bigint
+  nama_provinsi varchar
+  id_kabupaten bigint
+  nama_kabupaten varchar
+  id_kecamatan bigint
+  nama_kecamatan varchar
+  id_kelurahan bigint
+  nama_kelurahan varchar
+  kode_pos varchar
+  latitude decimal(10,8) [null]
+  longitude decimal(11,8) [null]
+  adalah_alamat_utama boolean [default: false]
+  tipe_alamat enum('RUMAH', 'KANTOR', 'GUDANG', 'LAINNYA') [default: 'RUMAH']
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Verifikasi Pengguna (OTP, Email, etc)
+Table tb_verifikasi_pengguna {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id]
+  jenis_verifikasi enum('EMAIL', 'TELEPON', 'KTP', 'NPWP')
+  nilai_verifikasi varchar // email, nomor telepon, dll
+  kode_verifikasi varchar
+  kedaluwarsa_pada timestamp
+  telah_digunakan boolean [default: false]
+  jumlah_coba integer [default: 0]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Sesi Pengguna (Login Management)
+Table tb_sesi_pengguna {
+  id varchar [PK]
+  id_user bigint [ref: > tb_users.id, null]
+  ip_address varchar(45) [null]
+  user_agent text [null]
+  payload longtext
+  aktivitas_terakhir integer
+  dibuat_pada timestamp
+}
+
+// Tabel Perangkat Pengguna (Device Management)
+Table tb_perangkat_pengguna {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id]
+  device_id varchar [unique]
+  device_type enum('MOBILE', 'TABLET', 'DESKTOP', 'TV')
+  device_name varchar
+  operating_system varchar
+  app_version varchar [null]
+  push_token varchar [null]
+  adalah_device_terpercaya boolean [default: false]
+  terakhir_aktif_pada timestamp
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+
+// Tabel Kategori Produk (Enhanced)
+Table tb_kategori_produk {
+  id bigint [PK]
+  nama_kategori varchar
+  slug_kategori varchar [unique]
+  deskripsi_kategori text [null]
+  gambar_kategori varchar [null]
+  icon_kategori varchar [null]
+  id_kategori_induk bigint [ref: > tb_kategori_produk.id, null]
+  level_kategori integer [default: 0] // 0=root, 1=level1, dll
+  urutan_tampilan integer [default: 0]
+  is_kategori_aktif boolean [default: true]
+  is_kategori_featured boolean [default: false]
+  meta_title varchar [null]
+  meta_description text [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Produk (Enhanced Structure)
+Table tb_produk {
+  id bigint [PK]
+  id_seller bigint [ref: > tb_penjual.id]
+  id_admin bigint [ref: > tb_users.id, null]
+  sku varchar [unique]
+  nama_produk varchar
+  slug_produk varchar [unique]
+  deskripsi_lengkap text [null]
+  kondisi_produk enum('BARU', 'BEKAS', 'REFURBISHED') [default: 'BARU']
+  status_produk enum('DRAFT', 'AKTIF', 'TIDAK_AKTIF', 'HAPUS', 'DITOLAK') [default: 'DRAFT']
+  berat_paket decimal(8,2) [null] // dalam gram
+  panjang_paket integer [null] // dalam cm
+  lebar_paket integer [null] // dalam cm
+  tinggi_paket integer [null] // dalam cm
+  harga_minimum decimal(12,2) [default: 0]
+  harga_maximum decimal(12,2) [default: 0]
+  jumlah_stok integer [default: 0]
+  stok_minimum integer [default: 0] // minimum stock alert
+  jumlah_terjual integer [default: 0]
+  jumlah_dilihat integer [default: 0]
+  jumlah_difavoritkan integer [default: 0]
+  rating_produk decimal(3,2) [default: 0]
+  jumlah_ulasan integer [default: 0]
+  is_produk_unggulan boolean [default: false]
+  is_produk_preorder boolean [default: false]
+  is_cod boolean [default: false]
+  is_approved boolean [default: false]
+  is_product_varian boolean [default: false]
+  waktu_preorder integer [null] // dalam hari
+  garansi_produk text [null]
+  etalase_kategori varchar [null] // kategori etalase seller
+  tag_produk json [null] // untuk SEO
+  meta_title varchar [null]
+  meta_description text [null]
+  video_produk varchar [null]
+  tanggal_dipublikasikan timestamp [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Varian Produk (Enhanced)
+Table tb_varian_produk {
+  id bigint [PK]
+  id_produk bigint [ref: > tb_produk.id]
+  id_admin bigint [ref: > tb_users.id, null]
+  sku_varian varchar [unique]
+  nama_varian varchar
+  urutan_variant integer [default: 0]
+  harga decimal(12,2)
+  harga_diskon decimal(12,2) [null] // untuk diskon
+  diskon decimal(5,2) [null]
+  stok_varian integer [default: 0]
+  berat_varian decimal(8,2) [null]
+  panjang_varian decimal(8,2) [null]
+  lebar_varian decimal(8,2) [null]
+  tinggi_varian decimal(8,2) [null]
+  gambar_varian varchar [null]
+  is_varian_aktif boolean [default: true]
+  is_varian_utama boolean [default: false]
+  is_approved boolean [default: false]
+  atribut_varian json [null] // {warna: "Merah", ukuran: "L", bahan: "Katun"}
+  kode_barcode varchar [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Gambar Produk (Enhanced)
+Table tb_gambar_produk {
+  id bigint [PK]
+  id_produk bigint [ref: > tb_produk.id]
+  id_varian bigint [ref: > tb_varian_produk.id, null]
+  url_gambar varchar
+  alt_text varchar [null]
+  urutan_gambar integer [default: 0]
+  is_gambar_utama boolean [default: false]
+  tipe_gambar enum('GALERI', 'DESKRIPSI', 'VARIAN') [default: 'GALERI']
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Info Pengiriman Produk
+Table tb_info_pengiriman_produk {
+  id bigint [PK]
+  id_produk bigint [ref: > tb_produk.id]
+  id_kota_asal bigint
+  nama_kota_asal varchar
+  estimasi_pengiriman json [null] // {jne: "2-3 hari", pos: "3-5 hari"}
+  berat_pengiriman decimal(8,2) [default: 0]
+  dimensi_pengiriman json [null]
+  biaya_pengemasan decimal(8,2) [default: 0]
+  is_gratis_ongkir boolean [default: false]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Log Inventori
+Table tb_log_inventori {
+  id bigint [PK]
+  id_produk bigint [ref: > tb_produk.id]
+  id_varian bigint [ref: > tb_varian_produk.id, null]
+  tipe_transaksi enum('MASUK', 'KELUAR', 'PENYESUAIAN', 'RUSAK', 'KEMBALI')
+  jumlah_transaksi integer
+  stok_sebelum integer
+  stok_sesudah integer
+  alasan_transaksi varchar [null]
+  id_operator bigint [ref: > tb_users.id]
+  catatan_tambahan text [null]
+  dibuat_pada timestamp
+}
+
+// Tabel Keranjang Belanja (Enhanced)
+Table tb_keranjang_belanja {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id, null]
+  session_id varchar [null] // untuk guest tb_users
+  id_seller bigint [ref: > tb_penjual.id]
+  total_items integer [default: 0]
+  total_berat decimal(10,2) [default: 0]
+  total_harga decimal(12,2) [default: 0]
+  total_diskon decimal(12,2) [default: 0]
+  is_cart_aktif boolean [default: true]
+  kadaluarsa_pada timestamp [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Item Keranjang
+Table tb_item_keranjang {
+  id bigint [PK]
+  id_cart bigint [ref: > tb_keranjang_belanja.id]
+  id_produk bigint [ref: > tb_produk.id]
+  id_varian bigint [ref: > tb_varian_produk.id, null]
+  nama_produk varchar // snapshot untuk tracking perubahan
+  gambar_produk varchar [null]
+  harga_satuan decimal(12,2) // harga saat ditambahkan
+  jumlah_pesanan integer [default: 1]
+  subtotal_harga decimal(12,2)
+  berat_item decimal(8,2)
+  catatan_pesanan text [null]
+  is_item_aktif boolean [default: true]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Pesanan (Enhanced Structure)
+Table tb_pesanan {
+  id bigint [PK]
+  nomor_pesanan varchar [unique]
+  id_customer bigint [ref: > tb_users.id]
+  id_alamat_pengiriman bigint [ref: > tb_alamat.id]
+  status_pesanan enum('KERANJANG', 'MENUNGGU_PEMBAYARAN', 'PEMBAYARAN_VERIFIKASI', 'SIAP_DIKIRIM', 'DIKIRIM', 'SELESAI', 'DIBATALKAN', 'PENGEMBALIAN', 'KOMPLAIN') [default: 'KERANJANG']
+  status_pembayaran enum('BELUM_BAYAR', 'MENUNGGU_VERIFIKASI', 'TERBAYAR', 'KADALUARSA', 'GAGAL') [default: 'BELUM_BAYAR']
+  total_items integer [default: 0]
+  total_berat decimal(10,2) [default: 0]
+  subtotal_produk decimal(12,2) [default: 0]
+  total_diskon_produk decimal(12,2) [default: 0]
+  total_ongkir decimal(12,2) [default: 0]
+  total_biaya_layanan decimal(12,2) [default: 0]
+  total_pajak decimal(12,2) [default: 0]
+  total_pembayaran decimal(12,2) [default: 0]
+  metode_pembayaran varchar [null]
+  bank_pembayaran varchar [null]
+  va_number varchar [null]
+  deadline_pembayaran timestamp [null]
+  tanggal_dibayar timestamp [null]
+  no_resi varchar [null]
+  catatan_pesanan text [null]
+  tanggal_pengiriman timestamp [null]
+  tanggal_selesai timestamp [null]
+  tanggal_dibatalkan timestamp [null]
+  alasan_pembatalan text [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Item Pesanan (Multi-vendor Support)
+Table tb_item_pesanan {
+  id bigint [PK]
+  id_pesanan bigint [ref: > tb_pesanan.id]
+  id_seller bigint [ref: > tb_penjual.id]
+  id_produk bigint [ref: > tb_produk.id]
+  id_varian bigint [ref: > tb_varian_produk.id, null]
+  nama_produk varchar
+  gambar_produk varchar [null]
+  sku_produk varchar
+  atribut_varian json [null]
+  harga_satuan decimal(12,2)
+  jumlah_pesanan integer
+  subtotal_harga decimal(12,2)
+  diskon_item decimal(12,2) [default: 0]
+  berat_item decimal(8,2)
+  status_item enum('MENUNGGU', 'DIKEMAS', 'DIKIRIM', 'SELESAI', 'DIBATALKAN', 'DIKEMBALIKAN') [default: 'MENUNGGU']
+  catatan_item text [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Riwayat Status Pesanan
+Table tb_riwayat_status_pesanan {
+  id bigint [PK]
+  id_pesanan bigint [ref: > tb_pesanan.id]
+  status_sebelumnya varchar [null]
+  status_sekarang varchar
+  catatan_status text [null]
+  id_pengubah bigint [ref: > tb_users.id, null] // bisa system atau user
+  dibuat_pada timestamp
+}
+
+// Tabel Metode Pengiriman
+Table tb_metode_pengiriman {
+  id bigint [PK]
+  nama_kurir varchar // "JNE", "POS", "TIKI", "GO-SEND", dll
+  tipe_layanan varchar // "REG", "YES", "OKE", "SAME_DAY"
+  deskripsi_layanan text [null]
+  logo_kurir varchar [null]
+  is_aktif boolean [default: true]
+  is_cargo boolean [default: false]
+  estimasi_pengiriman_min integer [null]
+  estimasi_pengiriman_max integer [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel penghubung antara Penjual dan Metode Pengiriman
+Table tb_metode_pengiriman_penjual {
+  id bigint [PK]
+  id_seller bigint [ref: > tb_penjual.id]
+  id_shipping_method bigint [ref: > tb_metode_pengiriman.id]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Tarif Pengiriman (Dynamic Pricing)
+Table tb_tarif_pengiriman {
+  id bigint [PK]
+  id_kurir bigint [ref: > tb_metode_pengiriman.id]
+  id_kota_asal bigint
+  id_kota_tujuan bigint
+  berat_min decimal(8,2) [default: 0]
+  berat_max decimal(8,2) [default: 0]
+  harga_ongkir decimal(10,2)
+  estimasi_pengiriman integer [null]
+  is_aktif boolean [default: true]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Pengiriman Pesanan
+Table tb_pengiriman_pesanan {
+  id bigint [PK]
+  id_pesanan bigint [ref: > tb_pesanan.id]
+  id_kurir bigint [ref: > tb_metode_pengiriman.id]
+  nama_kurir varchar
+  tipe_layanan varchar
+  no_resi varchar [null]
+  status_pengiriman enum('MENUNGGU', 'DIKEMAS', 'DIJEMPUT', 'DALAM_PERJALANAN', 'SAMPAI', 'GAGAL') [default: 'MENUNGGU']
+  estimasi_pengiriman integer [null]
+  biaya_pengiriman decimal(12,2) [default: 0]
+  biaya_asuransi decimal(12,2) [default: 0]
+  biaya_lainnya decimal(12,2) [default: 0]
+  alamat_pengiriman json // snapshot alamat saat order
+  catatan_pengiriman text [null]
+  link_tracking varchar [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Metode Pembayaran
+Table tb_metode_pembayaran {
+  id bigint [PK]
+  nama_pembayaran varchar // "Transfer Bank", "E-Wallet", "COD"
+  tipe_pembayaran enum('TRANSFER_BANK', 'E_WALLET', 'VIRTUAL_ACCOUNT', 'CREDIT_CARD', 'COD', 'QRIS')
+  provider_pembayaran varchar // "BCA", "GOPAY", "OVO", dll
+  logo_pembayaran varchar [null]
+  deskripsi_pembayaran text [null]
+  biaya_admin_percent decimal(5,2) [default: 0]
+  biaya_admin_fixed decimal(12,2) [default: 0]
+  minimum_pembayaran decimal(12,2) [default: 0]
+  maksimum_pembayaran decimal(12,2) [null]
+  is_aktif boolean [default: true]
+  urutan_tampilan integer [default: 0]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Transaksi Pembayaran
+Table tb_transaksi_pembayaran {
+  id bigint [PK]
+  id_pesanan bigint [ref: > tb_pesanan.id]
+  id_metode_pembayaran bigint [ref: > tb_metode_pembayaran.id]
+  reference_id varchar [unique]
+  jumlah_pembayaran decimal(12,2)
+  status_transaksi enum('MENUNGGU', 'BERHASIL', 'GAGAL', 'KADALUARSA') [default: 'MENUNGGU']
+  channel_pembayaran varchar [null]
+  va_number varchar [null]
+  qr_code varchar [null]
+  deep_link varchar [null]
+  tanggal_kadaluarsa timestamp [null]
+  tanggal_bayar timestamp [null]
+  response_gateway json [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Log Pembayaran (Debug & Audit)
+Table tb_log_pembayaran {
+  id bigint [PK]
+  id_transaksi bigint [ref: > tb_transaksi_pembayaran.id]
+  tipe_log enum('REQUEST', 'RESPONSE', 'CALLBACK', 'ERROR')
+  konten_log text
+  ip_address varchar [null]
+  user_agent varchar [null]
+  dibuat_pada timestamp
+}
+
+// Tabel Ulasan Produk (Enhanced)
+Table tb_ulasan_produk {
+  id bigint [PK]
+  id_produk bigint [ref: > tb_produk.id]
+  id_varian bigint [ref: > tb_varian_produk.id, null]
+  id_pembeli bigint [ref: > tb_users.id]
+  id_pesanan bigint [ref: > tb_pesanan.id]
+  rating_produk integer // 1-5 scale
+  rating_akurasi_produk integer // 1-5 scale
+  rating_kualitas_produk integer // 1-5 scale
+  rating_pengiriman_produk integer // 1-5 scale
+  komentar_ulasan text [null]
+  is_ulasan_anonim boolean [default: false]
+  is_ulasan_terverifikasi boolean [default: false] // pembelian terverifikasi
+  is_ditampilkan boolean [default: true]
+  jumlah_suka integer [default: 0]
+  id_review_parent bigint [ref: > tb_ulasan_produk.id, null] // untuk balasan
+  tanggal_ulasan timestamp [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Media Ulasan (Images & Videos)
+Table tb_media_ulasan {
+  id bigint [PK]
+  id_review bigint [ref: > tb_ulasan_produk.id]
+  tipe_media enum('GAMBAR', 'VIDEO')
+  url_media varchar
+  keterangan_media varchar [null]
+  urutan_media integer [default: 0]
+  dibuat_pada timestamp
+}
+
+// Tabel Suara Ulasan (Helpful/Not Helpful)
+Table tb_suara_ulasan {
+  id bigint [PK]
+  id_review bigint [ref: > tb_ulasan_produk.id]
+  id_user bigint [ref: > tb_users.id]
+  tipe_vote enum('SUKA', 'TIDAK_SUKA')
+  dibuat_pada timestamp
+}
+
+
+// Tabel Notifikasi Pengguna (Enhanced)
+Table tb_notifikasi_pengguna {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id, null] // null untuk broadcast
+  tipe_notifikasi enum('PESANAN', 'PEMBAYARAN', 'PENGIRIMAN', 'ULASAN', 'SYSTEM', 'CHAT')
+  judul_notifikasi varchar
+  isi_notifikasi text
+  data_notifikasi json [null] // additional data
+  url_redirect varchar [null]
+  gambar_notifikasi varchar [null]
+  is_dibaca boolean [default: false]
+  is_dikirim_push boolean [default: false]
+  is_dikirim_email boolean [default: false]
+  is_dikirim_sms boolean [default: false]
+  tanggal_dibaca timestamp [null]
+  kadaluarsa_pada timestamp [null]
+  dibuat_pada timestamp
+}
+
+// Tabel Aktivitas Pengguna (Analytics)
+Table tb_aktivitas_pengguna {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id, null]
+  sesi_id varchar [null]
+  tipe_aktivitas enum('LOGIN', 'LOGOUT', 'VIEW_PRODUK', 'CARI_PRODUK', 'TAMBAH_KERANJANG', 'CHECKOUT', 'PAYMENT', 'REVIEW', 'CHAT')
+  data_aktivitas json [null]
+  ip_address varchar [null]
+  user_agent varchar [null]
+  referrer varchar [null]
+  halaman_asal varchar [null]
+  dibuat_pada timestamp
+}
+
+// Tabel Riwayat Pencarian
+Table tb_riwayat_pencarian {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id, null]
+  kata_pencarian varchar
+  jumlah_hasil integer [null]
+  ip_address varchar [null]
+  dibuat_pada timestamp
+}
+
+// Tabel Pengguna Admin
+Table tb_pengguna_admin {
+  id bigint [PK]
+  id_user bigint [ref: > tb_users.id]
+  role_admin enum('SUPER_ADMIN', 'ADMIN_CONTENT', 'ADMIN_FINANCE', 'ADMIN_CUSTOMER', 'ADMIN_LOGISTIC')
+  permissions json [null] // additional permissions
+  is_active boolean [default: true]
+  last_login_at timestamp [null]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// Tabel Laporan Penjual
+Table tb_laporan_penjual {
+  id bigint [PK]
+  id_seller bigint [ref: > tb_penjual.id]
+  tipe_laporan enum('HARIAN', 'MINGGUAN', 'BULANAN', 'TAHUNAN')
+  periode_laporan date
+  total_pesanan integer [default: 0]
+  total_penjualan decimal(15,2) [default: 0]
+  total_pendapatan decimal(15,2) [default: 0]
+  total_ongkir decimal(15,2) [default: 0]
+  total_komisi_platform decimal(15,2) [default: 0]
+  total_bersih decimal(15,2) [default: 0]
+  produk_terlaris json [null]
+  pembelian_terbanyak json [null]
+  rating_rata_rata decimal(3,2) [default: 0]
+  dibuat_pada timestamp
+}
+
+// Tabel Laporan Penjualan
+Table tb_laporan_penjualan {
+  id bigint [PK]
+  tipe_laporan enum('GLOBAL', 'KATEGORI', 'PROVINSI', 'PAYMENT_METHOD')
+  periode_laporan date
+  data_laporan json [null] // flexible data structure
+  total_transaksi integer [default: 0]
+  total_nilai_transaksi decimal(15,2) [default: 0]
+  dibuat_pada timestamp
+}
+
+// Tabel Pengaturan Sistem
+Table tb_pengaturan_sistem {
+  id bigint [PK]
+  kunci_pengaturan varchar [unique]
+  nilai_pengaturan text
+  tipe_pengaturan enum('STRING', 'NUMBER', 'BOOLEAN', 'JSON')
+  grup_pengaturan varchar [default: 'GENERAL']
+  deskripsi_pengaturan text [null]
+  is_public boolean [default: false]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+}
+
+// TABEL MASTER ALAMAT INDONESIA
+// Tabel Master Provinsi
+Table tb_master_provinsi {
+  id bigint [PK, increment]
+  nama varchar [not null, note: "Nama provinsi Indonesia"]
+  dibuat_pada timestamp [note: "Created at"]
+  diperbarui_pada timestamp [note: "Updated at"]
+
+  indexes {
+    (id) [PK]
+  }
+}
+
+// Tabel Master Kota/Kabupaten
+Table tb_master_kota {
+  id bigint [PK, increment]
+  provinsi_id bigint [not null, index, note: "Foreign key ke tb_master_provinsi"]
+  nama varchar [not null, note: "Nama kota/kabupaten"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (provinsi_id)
+  }
+}
+
+// Tabel Master Kecamatan
+Table tb_master_kecamatan {
+  id bigint [PK, increment]
+  kota_id bigint [not null, index, note: "Foreign key ke tb_master_kota"]
+  nama varchar [not null, note: "Nama kecamatan"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (kota_id)
+  }
+}
+
+// Tabel Master Kode Pos
+Table tb_master_kode_pos {
+  id bigint [PK, increment]
+  kecamatan_id bigint [not null, index, note: "Foreign key ke tb_master_kecamatan"]
+  kode varchar [not null, note: "Kode pos"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (kecamatan_id)
+    (kode)
+  }
+}
+
+// TABEL SISTEM CHAT
+// Tabel Percakapan
+Table tb_chat_percakapan {
+  id bigint [PK, increment]
+  tipe enum [""private"", ""group"", ""order_support"", ""product_support"", ""system""] [not null, note: ""Tipe percakapan""]
+  judul varchar(512) [null, note: ""Judul percakapan (untuk group)""]
+  owner_user_id bigint [null, note: ""ID user pemilik""]
+  owner_shop_profile_id bigint [null, note: ""ID toko pemilik""]
+  metadata json [null, note: ""Data tambahan percakapan""]
+  last_message_id bigint [null, note: ""ID pesan terakhir""]
+  last_message_at timestamp [null, note: ""Waktu pesan terakhir""]
+  is_open boolean [default: true, not null, note: ""Status percakapan aktif""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (tipe)
+    (owner_user_id)
+    (owner_shop_profile_id)
+    (last_message_at)
+  }
+}
+
+// Tabel Peserta Percakapan
+Table tb_chat_peserta_percakapan {
+  id bigint [PK, increment]
+  percakapan_id bigint [not null, note: ""Foreign key ke tb_chat_percakapan""]
+  user_id bigint [null, note: ""ID user peserta""]
+  shop_profile_id bigint [null, note: ""ID toko peserta""]
+  role enum [""participant"", ""admin"", ""agent"", ""owner""] [default: ""participant"", not null, note: ""Role peserta""]
+  bergabung_pada timestamp [null, note: ""Waktu bergabung""]
+  keluar_pada timestamp [null, note: ""Waktu keluar""]
+  last_read_message_id bigint [null, note: ""ID pesan terakhir dibaca""]
+  terakhir_dibaca_pada timestamp [null, note: ""Waktu terakhir membaca""]
+  jumlah_belum_dibaca int [default: 0, not null, note: ""Jumlah pesan belum dibaca""]
+  dihentikan_hingga timestamp [null, note: ""Notifikasi dimatikan hingga""]
+  is_blocked boolean [default: false, not null, note: ""Status blokir""]
+  preferences json [null, note: ""Preferensi peserta""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (percakapan_id)
+    (user_id)
+    (shop_profile_id)
+    (role)
+  }
+}
+
+// Tabel Pesan Chat
+Table tb_chat_pesan_chat {
+  id bigint [PK, increment]
+  percakapan_id bigint [not null, note: ""Foreign key ke tb_chat_percakapan""]
+  pengirim_user_id bigint [null, note: ""ID user pengirim""]
+  pengirim_shop_profile_id bigint [null, note: ""ID toko pengirim""]
+  konten text [null, note: ""Isi pesan""]
+  tipe_konten enum [""text"", ""system"", ""template"", ""product_card"", ""order_card""] [default: ""text"", not null, note: ""Tipe konten pesan""]
+  metadata json [null, note: ""Data tambahan pesan""]
+  parent_message_id bigint [null, note: ""ID pesan induk (untuk thread)""]
+  reply_to_message_id bigint [null, note: ""ID pesan yang dibalas""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+  diedit_pada timestamp [null, note: ""Waktu edit terakhir""]
+  is_dihapus boolean [default: false, not null, note: ""Status penghapusan""]
+  dihapus_pada timestamp [null, note: ""Waktu penghapusan""]
+
+  indexes {
+    (id) [PK]
+    (percakapan_id)
+    (pengirim_user_id)
+    (pengirim_shop_profile_id)
+    (tipe_konten)
+    (dibuat_pada)
+    (parent_message_id)
+    (reply_to_message_id)
+  }
+}
+
+// Tabel Lampiran Pesan
+Table tb_chat_lampiran_pesan {
+  id bigint [PK, increment]
+  pesan_id bigint [not null, note: ""Foreign key ke tb_chat_pesan_chat""]
+  tipe varchar(32) [not null, note: ""Tipe lampiran: image|video|audio|file|sticker""]
+  url varchar(2048) [not null, note: ""URL file lampiran""]
+  nama_file varchar(512) [null, note: ""Nama asli file""]
+  content_type varchar(128) [null, note: ""MIME type file""]
+  ukuran_bytes int [null, note: ""Ukuran file dalam bytes""]
+  metadata json [null, note: ""Data tambahan lampiran""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (pesan_id)
+    (tipe)
+  }
+}
+
+// Tabel Status Pesan
+Table tb_chat_status_pesan {
+  id bigint [PK, increment]
+  pesan_id bigint [not null, note: ""Foreign key ke tb_chat_pesan_chat""]
+  user_id bigint [not null, note: ""ID user penerima""]
+  status enum [""sent"", ""delivered"", ""read"", ""failed""] [not null, note: ""Status pengiriman pesan""]
+  status_pada timestamp [null, note: ""Waktu status terakhir""]
+  device_info json [null, note: ""Informasi device penerima""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (pesan_id)
+    (user_id)
+    (status)
+    (status_pada)
+  }
+}
+
+// Tabel Reaksi Pesan
+Table tb_chat_reaksi_pesan {
+  id bigint [PK, increment]
+  pesan_id bigint [not null, note: ""Foreign key ke tb_chat_pesan_chat""]
+  user_id bigint [not null, note: ""ID user yang memberi reaksi""]
+  reaksi varchar(64) [not null, note: ""Emoji/simbol reaksi""]
+  direaksi_pada timestamp [null, note: ""Waktu memberi reaksi""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (pesan_id)
+    (user_id)
+    (reaksi)
+  }
+}
+
+// Tabel Edit Pesan
+Table tb_chat_edit_pesan {
+  id bigint [PK, increment]
+  pesan_id bigint [not null, note: ""Foreign key ke tb_chat_pesan_chat""]
+  editor_id bigint [not null, note: ""ID user yang mengedit""]
+  konten_sebelumnya text [not null, note: ""Konten sebelum edit""]
+  alasan_edit varchar(255) [null, note: ""Alasan pengeditan""]
+  diedit_pada timestamp [null, note: ""Waktu pengeditan""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (pesan_id)
+    (editor_id)
+    (diedit_pada)
+  }
+}
+
+// Tabel Referensi Produk Chat
+Table tb_chat_referensi_produk_chat {
+  id bigint [PK, increment]
+  pesan_id bigint [not null, note: ""Foreign key ke tb_chat_pesan_chat""]
+  product_id bigint [null, note: ""ID produk""]
+  marketplace_product_id varchar(128) [null, note: ""ID produk dari marketplace""]
+  snapshot json [null, note: ""Data snapshot produk saat direferensikan""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (pesan_id)
+    (product_id)
+    (marketplace_product_id)
+  }
+}
+
+// Tabel Referensi Order Chat
+Table tb_chat_referensi_order_chat {
+  id bigint [PK, increment]
+  pesan_id bigint [not null, note: ""Foreign key ke tb_chat_pesan_chat""]
+  order_id bigint [null, note: ""ID order""]
+  marketplace_order_id varchar(128) [null, note: ""ID order dari marketplace""]
+  snapshot json [null, note: ""Data snapshot order saat direferensikan""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (pesan_id)
+    (order_id)
+    (marketplace_order_id)
+  }
+}
+
+// Tabel Laporan Percakapan
+Table tb_chat_laporan_percakapan {
+  id bigint [PK, increment]
+  percakapan_id bigint [null, note: ""Foreign key ke tb_chat_percakapan""]
+  reporter_id bigint [not null, note: ""ID user pelapor""]
+  alasan varchar(512) [not null, note: ""Alasan pelaporan""]
+  metadata json [null, note: ""Data tambahan pelaporan""]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [PK]
+    (percakapan_id)
+    (reporter_id)
+  }
+}
+
+// RELASI UNTUK MASTER ALAMAT INDONESIA
+Ref: tb_master_kota.provinsi_id > tb_master_provinsi.id
+Ref: tb_master_kecamatan.kota_id > tb_master_kota.id
+Ref: tb_master_kode_pos.kecamatan_id > tb_master_kecamatan.id
+
+// RELASI UNTUK SISTEM CHAT
+// Relasi ke tabel Users
+Ref: tb_chat_percakapan.owner_user_id > tb_users.id [delete: set null]
+Ref: tb_chat_peserta_percakapan.user_id > tb_users.id [delete: cascade]
+Ref: tb_chat_peserta_percakapan.last_read_message_id > tb_chat_pesan_chat.id
+Ref: tb_chat_pesan_chat.pengirim_user_id > tb_users.id [delete: set null]
+Ref: tb_chat_status_pesan.user_id > tb_users.id [delete: cascade]
+Ref: tb_chat_reaksi_pesan.user_id > tb_users.id [delete: cascade]
+Ref: tb_chat_edit_pesan.editor_id > tb_users.id [delete: cascade]
+Ref: tb_chat_laporan_percakapan.reporter_id > tb_users.id [delete: cascade]
+
+// Relasi ke tabel Shop Profiles
+Ref: tb_chat_percakapan.owner_shop_profile_id > tb_penjual.id [delete: set null]
+Ref: tb_chat_peserta_percakapan.shop_profile_id > tb_penjual.id [delete: cascade]
+Ref: tb_chat_pesan_chat.pengirim_shop_profile_id > tb_penjual.id [delete: set null]
+
+// Relasi ke tabel Produk
+Ref: tb_chat_referensi_produk_chat.product_id > tb_produk.id [delete: cascade]
+
+// Relasi ke tabel Pesanan
+Ref: tb_chat_referensi_order_chat.order_id > tb_pesanan.id [delete: cascade]
+
+// Relasi internal Chat System
+Ref: tb_chat_percakapan.last_message_id > tb_chat_pesan_chat.id
+Ref: tb_chat_peserta_percakapan.percakapan_id > tb_chat_percakapan.id [delete: cascade]
+Ref: tb_chat_pesan_chat.percakapan_id > tb_chat_percakapan.id [delete: cascade]
+Ref: tb_chat_pesan_chat.parent_message_id > tb_chat_pesan_chat.id [delete: set null]
+Ref: tb_chat_pesan_chat.reply_to_message_id > tb_chat_pesan_chat.id [delete: set null]
+Ref: tb_chat_lampiran_pesan.pesan_id > tb_chat_pesan_chat.id [delete: cascade]
+Ref: tb_chat_status_pesan.pesan_id > tb_chat_pesan_chat.id [delete: cascade]
+Ref: tb_chat_reaksi_pesan.pesan_id > tb_chat_pesan_chat.id [delete: cascade]
+Ref: tb_chat_edit_pesan.pesan_id > tb_chat_pesan_chat.id [delete: cascade]
+Ref: tb_chat_referensi_produk_chat.pesan_id > tb_chat_pesan_chat.id [delete: cascade]
+Ref: tb_chat_referensi_order_chat.pesan_id > tb_chat_pesan_chat.id [delete: cascade]
+Ref: tb_chat_laporan_percakapan.percakapan_id > tb_chat_percakapan.id [delete: set null]
+
+// CONSTRAINTS UNIK CHAT SYSTEM
+Ref: tb_chat_status_pesan.pesan_id > tb_chat_status_pesan.user_id [unique]
+Ref: tb_chat_reaksi_pesan.(pesan_id, user_id, reaksi) [unique]

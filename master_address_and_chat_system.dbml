@@ -1,0 +1,327 @@
+// Skema Database Master Alamat & Sistem Chat
+// Dibuat untuk Zukses E-commerce Marketplace
+// Compatible dengan dbdiagram.io
+
+// Tabel Master Alamat
+Table master_provinsi {
+  id bigint [pk, increment]
+  nama varchar [not null, note: "Nama provinsi Indonesia"]
+  dibuat_pada timestamp [note: "Created at"]
+  diperbarui_pada timestamp [note: "Updated at"]
+
+  indexes {
+    (id) [pk]
+  }
+}
+
+Table master_kota {
+  id bigint [pk, increment]
+  provinsi_id bigint [not null, index, note: "Foreign key ke master_provinsi"]
+  nama varchar [not null, note: "Nama kota/kabupaten"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (provinsi_id)
+  }
+}
+
+Table master_kecamatan {
+  id bigint [pk, increment]
+  kota_id bigint [not null, index, note: "Foreign key ke master_kota"]
+  nama varchar [not null, note: "Nama kecamatan"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (kota_id)
+  }
+}
+
+Table master_kode_pos {
+  id bigint [pk, increment]
+  kecamatan_id bigint [not null, index, note: "Foreign key ke master_kecamatan"]
+  kode varchar [not null, note: "Kode pos"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (kecamatan_id)
+    (kode)
+  }
+}
+
+// Tabel Sistem Chat
+Table percakapan {
+  id bigint [pk, increment]
+  tipe enum ["private", "group", "order_support", "product_support", "system"] [not null, note: "Tipe percakapan"]
+  judul varchar(512) [null, note: "Judul percakapan (untuk group)"]
+  owner_user_id bigint [null, note: "ID user pemilik"]
+  owner_shop_profile_id bigint [null, note: "ID toko pemilik"]
+  metadata json [null, note: "Data tambahan percakapan"]
+  last_message_id bigint [null, note: "ID pesan terakhir"]
+  last_message_at timestamp [null, note: "Waktu pesan terakhir"]
+  is_open boolean [default: true, not null, note: "Status percakapan aktif"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (tipe)
+    (owner_user_id)
+    (owner_shop_profile_id)
+    (last_message_at)
+  }
+}
+
+Table peserta_percakapan {
+  id bigint [pk, increment]
+  percakapan_id bigint [not null, note: "Foreign key ke percakapan"]
+  user_id bigint [null, note: "ID user peserta"]
+  shop_profile_id bigint [null, note: "ID toko peserta"]
+  role enum ["participant", "admin", "agent", "owner"] [default: "participant", not null, note: "Role peserta"]
+  bergabung_pada timestamp [null, note: "Waktu bergabung"]
+  keluar_pada timestamp [null, note: "Waktu keluar"]
+  last_read_message_id bigint [null, note: "ID pesan terakhir dibaca"]
+  terakhir_dibaca_pada timestamp [null, note: "Waktu terakhir membaca"]
+  jumlah_belum_dibaca int [default: 0, not null, note: "Jumlah pesan belum dibaca"]
+  dihentikan_hingga timestamp [null, note: "Notifikasi dimatikan hingga"]
+  is_blocked boolean [default: false, not null, note: "Status blokir"]
+  preferences json [null, note: "Preferensi peserta"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (percakapan_id)
+    (user_id)
+    (shop_profile_id)
+    (role)
+  }
+}
+
+Table pesan_chat {
+  id bigint [pk, increment]
+  percakapan_id bigint [not null, note: "Foreign key ke percakapan"]
+  pengirim_user_id bigint [null, note: "ID user pengirim"]
+  pengirim_shop_profile_id bigint [null, note: "ID toko pengirim"]
+  konten text [null, note: "Isi pesan"]
+  tipe_konten enum ["text", "system", "template", "product_card", "order_card"] [default: "text", not null, note: "Tipe konten pesan"]
+  metadata json [null, note: "Data tambahan pesan"]
+  parent_message_id bigint [null, note: "ID pesan induk (untuk thread)"]
+  reply_to_message_id bigint [null, note: "ID pesan yang dibalas"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+  diedit_pada timestamp [null, note: "Waktu edit terakhir"]
+  is_dihapus boolean [default: false, not null, note: "Status penghapusan"]
+  dihapus_pada timestamp [null, note: "Waktu penghapusan"]
+
+  indexes {
+    (id) [pk]
+    (percakapan_id)
+    (pengirim_user_id)
+    (pengirim_shop_profile_id)
+    (tipe_konten)
+    (dibuat_pada)
+    (parent_message_id)
+    (reply_to_message_id)
+  }
+}
+
+Table lampiran_pesan {
+  id bigint [pk, increment]
+  pesan_id bigint [not null, note: "Foreign key ke pesan_chat"]
+  tipe varchar(32) [not null, note: "Tipe lampiran: image|video|audio|file|sticker"]
+  url varchar(2048) [not null, note: "URL file lampiran"]
+  nama_file varchar(512) [null, note: "Nama asli file"]
+  content_type varchar(128) [null, note: "MIME type file"]
+  ukuran_bytes int [null, note: "Ukuran file dalam bytes"]
+  metadata json [null, note: "Data tambahan lampiran"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (pesan_id)
+    (tipe)
+  }
+}
+
+Table status_pesan {
+  id bigint [pk, increment]
+  pesan_id bigint [not null, note: "Foreign key ke pesan_chat"]
+  user_id bigint [not null, note: "ID user penerima"]
+  status enum ["sent", "delivered", "read", "failed"] [not null, note: "Status pengiriman pesan"]
+  status_pada timestamp [null, note: "Waktu status terakhir"]
+  device_info json [null, note: "Informasi device penerima"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (pesan_id)
+    (user_id)
+    (status)
+    (status_pada)
+  }
+}
+
+Table reaksi_pesan {
+  id bigint [pk, increment]
+  pesan_id bigint [not null, note: "Foreign key ke pesan_chat"]
+  user_id bigint [not null, note: "ID user yang memberi reaksi"]
+  reaksi varchar(64) [not null, note: "Emoji/simbol reaksi"]
+  direaksi_pada timestamp [null, note: "Waktu memberi reaksi"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (pesan_id)
+    (user_id)
+    (reaksi)
+  }
+}
+
+Table edit_pesan {
+  id bigint [pk, increment]
+  pesan_id bigint [not null, note: "Foreign key ke pesan_chat"]
+  editor_id bigint [not null, note: "ID user yang mengedit"]
+  konten_sebelumnya text [not null, note: "Konten sebelum edit"]
+  alasan_edit varchar(255) [null, note: "Alasan pengeditan"]
+  diedit_pada timestamp [null, note: "Waktu pengeditan"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (pesan_id)
+    (editor_id)
+    (diedit_pada)
+  }
+}
+
+Table referensi_produk_chat {
+  id bigint [pk, increment]
+  pesan_id bigint [not null, note: "Foreign key ke pesan_chat"]
+  product_id bigint [null, note: "ID produk"]
+  marketplace_product_id varchar(128) [null, note: "ID produk dari marketplace"]
+  snapshot json [null, note: "Data snapshot produk saat direferensikan"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (pesan_id)
+    (product_id)
+    (marketplace_product_id)
+  }
+}
+
+Table referensi_order_chat {
+  id bigint [pk, increment]
+  pesan_id bigint [not null, note: "Foreign key ke pesan_chat"]
+  order_id bigint [null, note: "ID order"]
+  marketplace_order_id varchar(128) [null, note: "ID order dari marketplace"]
+  snapshot json [null, note: "Data snapshot order saat direferensikan"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (pesan_id)
+    (order_id)
+    (marketplace_order_id)
+  }
+}
+
+Table laporan_percakapan {
+  id bigint [pk, increment]
+  percakapan_id bigint [null, note: "Foreign key ke percakapan"]
+  reporter_id bigint [not null, note: "ID user pelapor"]
+  alasan varchar(512) [not null, note: "Alasan pelaporan"]
+  metadata json [null, note: "Data tambahan pelaporan"]
+  dibuat_pada timestamp
+  diperbarui_pada timestamp
+
+  indexes {
+    (id) [pk]
+    (percakapan_id)
+    (reporter_id)
+  }
+}
+
+// Tabel Referensi (versi sederhana dari tabel core terkait)
+Table users {
+  id bigint [pk, increment]
+  // Tambahkan field user lainnya sesuai kebutuhan
+  indexes {
+    (id) [pk]
+  }
+}
+
+Table shop_profiles {
+  id bigint [pk, increment]
+  // Tambahkan field toko lainnya sesuai kebutuhan
+  indexes {
+    (id) [pk]
+  }
+}
+
+Table products {
+  id bigint [pk, increment]
+  // Tambahkan field produk lainnya sesuai kebutuhan
+  indexes {
+    (id) [pk]
+  }
+}
+
+Table orders {
+  id bigint [pk, increment]
+  // Tambahkan field order lainnya sesuai kebutuhan
+  indexes {
+    (id) [pk]
+  }
+}
+
+// Relasi untuk Master Address
+Ref: master_kota.provinsi_id > master_provinsi.id
+Ref: master_kecamatan.kota_id > master_kota.id
+Ref: master_kode_pos.kecamatan_id > master_kecamatan.id
+
+// Relasi untuk Sistem Chat
+Ref: percakapan.owner_user_id > users.id [delete: set null]
+Ref: percakapan.owner_shop_profile_id > shop_profiles.id [delete: set null]
+Ref: percakapan.last_message_id > pesan_chat.id
+
+Ref: peserta_percakapan.percakapan_id > percakapan.id [delete: cascade]
+Ref: peserta_percakapan.user_id > users.id [delete: cascade]
+Ref: peserta_percakapan.shop_profile_id > shop_profiles.id [delete: cascade]
+Ref: peserta_percakapan.last_read_message_id > pesan_chat.id
+
+Ref: pesan_chat.percakapan_id > percakapan.id [delete: cascade]
+Ref: pesan_chat.pengirim_user_id > users.id [delete: set null]
+Ref: pesan_chat.pengirim_shop_profile_id > shop_profiles.id [delete: set null]
+Ref: pesan_chat.parent_message_id > pesan_chat.id [delete: set null]
+Ref: pesan_chat.reply_to_message_id > pesan_chat.id [delete: set null]
+
+Ref: lampiran_pesan.pesan_id > pesan_chat.id [delete: cascade]
+Ref: status_pesan.pesan_id > pesan_chat.id [delete: cascade]
+Ref: status_pesan.user_id > users.id [delete: cascade]
+Ref: reaksi_pesan.pesan_id > pesan_chat.id [delete: cascade]
+Ref: reaksi_pesan.user_id > users.id [delete: cascade]
+Ref: edit_pesan.pesan_id > pesan_chat.id [delete: cascade]
+Ref: edit_pesan.editor_id > users.id [delete: cascade]
+Ref: referensi_produk_chat.pesan_id > pesan_chat.id [delete: cascade]
+Ref: referensi_produk_chat.product_id > products.id [delete: cascade]
+Ref: referensi_order_chat.pesan_id > pesan_chat.id [delete: cascade]
+Ref: referensi_order_chat.order_id > orders.id [delete: cascade]
+Ref: laporan_percakapan.percakapan_id > percakapan.id [delete: set null]
+Ref: laporan_percakapan.reporter_id > users.id [delete: cascade]
+
+// Constraints Unik
+Ref: status_pesan.pesan_id > status_pesan.user_id [unique]
+Ref: reaksi_pesan.(pesan_id, user_id, reaksi) [unique]
