@@ -6,56 +6,112 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
-        'password',
+        'nomor_telepon',
+        'kata_sandi',
+        'tipe_user',
+        'status',
+        'email_terverifikasi_pada',
+        'telepon_terverifikasi_pada',
+        'terakhir_login_pada',
+        'url_foto_profil',
+        'pengaturan',
+        'nama_depan',
+        'nama_belakang',
+        'nama_lengkap',
+        'jenis_kelamin',
+        'tanggal_lahir',
+        'bio',
+        'url_media_sosial',
+        'bidang_interests',
+        'dibuat_pada',
+        'diperbarui_pada',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
-        'password',
+        'kata_sandi',
         'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_terverifikasi_pada' => 'datetime',
+        'telepon_terverifikasi_pada' => 'datetime',
+        'terakhir_login_pada' => 'datetime',
+        'tanggal_lahir' => 'date',
+        'dibuat_pada' => 'datetime',
+        'diperbarui_pada' => 'datetime',
+        'pengaturan' => 'array',
+        'url_media_sosial' => 'array',
+        'bidang_interests' => 'array',
+    ];
+
+    /**
+     * Get the name attribute (combining first and last name)
+     */
+    public function getNameAttribute()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return trim($this->nama_depan . ' ' . $this->nama_belakang);
     }
 
     /**
-     * Get the user's initials
+     * Get the sellers for the user.
      */
-    public function initials(): string
+    public function sellers()
     {
-        return Str::of($this->name)
-            ->explode(' ')
-            ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
-            ->implode('');
+        return $this->hasMany(Seller::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the addresses for the user.
+     */
+    public function addresses()
+    {
+        return $this->hasMany(Address::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the verifications for the user.
+     */
+    public function verifications()
+    {
+        return $this->hasMany(Verification::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the devices for the user.
+     */
+    public function devices()
+    {
+        return $this->hasMany(Device::class, 'id_user', 'id');
     }
 }
