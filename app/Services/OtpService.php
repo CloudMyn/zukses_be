@@ -6,6 +6,7 @@ use App\Models\Verification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Service untuk mengelola pengiriman OTP
@@ -24,6 +25,10 @@ class OtpService
     public function sendOtpViaEmail(string $email, string $otpCode): bool
     {
         try {
+            // Set temporary timeout configuration
+            $originalTimeout = Config::get('mail.stream.timeout');
+            Config::set('mail.stream.timeout', 10);
+
             // Create HTML email content with modern green theme
             $htmlContent = $this->generateOtpEmailTemplate($otpCode);
 
@@ -33,9 +38,16 @@ class OtpService
                         ->subject('Kode OTP Verifikasi - ZUKSES');
             });
 
+            // Restore original timeout
+            if ($originalTimeout) {
+                Config::set('mail.stream.timeout', $originalTimeout);
+            }
+
+            Log::info('OTP berhasil dikirim ke email: ' . $email);
             return true;
         } catch (\Exception $e) {
             Log::error('Gagal mengirim OTP via email: ' . $e->getMessage());
+            Log::error('Error details: ' . $e->getTraceAsString());
             return false;
         }
     }
@@ -326,10 +338,10 @@ class OtpService
             // Pesan OTP
             $message = "Kode OTP Anda adalah: *$otpCode*. Kode ini berlaku selama 10 menit. Jangan berikan kode ini ke siapa pun.";
 
-            // Gunakan API Fonnte untuk mengirim pesan WhatsApp
+            // Gunakan API Fonnte untuk mengirim pesan WhatsApp dengan timeout
             $response = Http::withHeaders([
                 'Authorization' => config('services.fonnte.auth_token'),
-            ])->asForm()->post('https://api.fonnte.com/send', [
+            ])->timeout(10)->asForm()->post('https://api.fonnte.com/send', [
                 'target' => $formattedPhone,
                 'message' => $message,
             ]);

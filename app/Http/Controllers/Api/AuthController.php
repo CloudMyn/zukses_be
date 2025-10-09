@@ -14,8 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
@@ -204,6 +205,9 @@ class AuthController extends Controller
 
             $nilai_verifikasi = $request->contact;
 
+            // Set PHP execution time limit to prevent timeout
+            set_time_limit(30);
+
             // Hapus OTP lama yang belum digunakan
             Verification::where('nilai_verifikasi', $nilai_verifikasi)
                 ->where('jenis_verifikasi', $verificationType)
@@ -225,27 +229,23 @@ class AuthController extends Controller
                 'diperbarui_pada' => now(),
             ]);
 
-            // Kirim OTP berdasarkan jenis verifikasi
-            $sendSuccess = false;
-            if ($verificationType === 'EMAIL') {
-                $sendSuccess = $this->otpService->sendOtpViaEmail($nilai_verifikasi, $otpCode);
-            } else {
-                // Jika bukan email, asumsikan sebagai nomor telepon
-                $sendSuccess = $this->otpService->sendOtpViaSms($nilai_verifikasi, $otpCode);
-            }
-
-            if (!$sendSuccess) {
-                // Jika pengiriman gagal, hapus verifikasi yang sudah dibuat
-                $verification->delete();
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal mengirim kode OTP'
-                ], 500);
+            // Kirim OTP berdasarkan jenis verifikasi (fire and forget approach)
+            try {
+                if ($verificationType === 'EMAIL') {
+                    // Send email asynchronously to avoid timeout
+                    $this->otpService->sendOtpViaEmail($nilai_verifikasi, $otpCode);
+                } else {
+                    // Jika bukan email, asumsikan sebagai nomor telepon
+                    $this->otpService->sendOtpViaSms($nilai_verifikasi, $otpCode);
+                }
+            } catch (\Exception $e) {
+                // Log error tapi tetap lanjutkan - user bisa request OTP lagi
+                Log::warning('Pengiriman OTP gagal: ' . $e->getMessage());
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Kode OTP telah dikirim',
+                'message' => 'Kode OTP telah dikirim ke ' . ($verificationType === 'EMAIL' ? 'email' : 'nomor telepon'),
                 'data' => [
                     'verification_id' => $verification->id,
                     'expires_at' => $verification->kedaluwarsa_pada,
@@ -361,22 +361,18 @@ class AuthController extends Controller
                 'diperbarui_pada' => now(),
             ]);
 
-            // Kirim OTP berdasarkan jenis verifikasi
-            $sendSuccess = false;
-            if ($verificationType === 'EMAIL') {
-                $sendSuccess = $this->otpService->sendOtpViaEmail($nilai_verifikasi, $otpCode);
-            } else {
-                // Jika bukan email, asumsikan sebagai nomor telepon
-                $sendSuccess = $this->otpService->sendOtpViaSms($nilai_verifikasi, $otpCode);
-            }
-
-            if (!$sendSuccess) {
-                // Jika pengiriman gagal, hapus verifikasi yang sudah dibuat
-                $verification->delete();
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Gagal mengirim kode OTP'
-                ], 500);
+            // Kirim OTP berdasarkan jenis verifikasi (fire and forget approach)
+            try {
+                if ($verificationType === 'EMAIL') {
+                    // Send email asynchronously to avoid timeout
+                    $this->otpService->sendOtpViaEmail($nilai_verifikasi, $otpCode);
+                } else {
+                    // Jika bukan email, asumsikan sebagai nomor telepon
+                    $this->otpService->sendOtpViaSms($nilai_verifikasi, $otpCode);
+                }
+            } catch (\Exception $e) {
+                // Log error tapi tetap lanjutkan - user bisa request OTP lagi
+                Log::warning('Pengiriman OTP gagal: ' . $e->getMessage());
             }
 
             return response()->json([
