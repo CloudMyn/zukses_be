@@ -202,32 +202,6 @@
                 Connect users, manage products, process orders, and enable real-time communication
                 with our robust backend infrastructure.
             </div>
-
-            <div class="features">
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <div class="feature-title">User Management</div>
-                    <div class="feature-description">Multi-role authentication with JWT security</div>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">🛍️</div>
-                    <div class="feature-title">Product Catalog</div>
-                    <div class="feature-description">Complete inventory and variant management</div>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <div class="feature-title">Real-time Chat</div>
-                    <div class="feature-description">Instant messaging with file sharing</div>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">💳</div>
-                    <div class="feature-title">Payment Gateway</div>
-                    <div class="feature-description">Secure payment processing with Midtrans</div>
-                </div>
-            </div>
         </div>
 
         <div class="footer">
