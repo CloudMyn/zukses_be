@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('verifikasi_pengguna', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_user');
+            $table->unsignedBigInteger('id_user')->nullable();
             $table->enum('jenis_verifikasi', ['EMAIL', 'TELEPON', 'KTP', 'NPWP']);
             $table->string('nilai_verifikasi'); // email, nomor telepon, dll
             $table->string('kode_verifikasi');
