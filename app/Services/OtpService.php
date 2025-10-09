@@ -27,11 +27,10 @@ class OtpService
             // Create HTML email content with modern green theme
             $htmlContent = $this->generateOtpEmailTemplate($otpCode);
 
-            // Send email using Laravel's Mail facade
-            Mail::send([], [], function ($message) use ($email, $htmlContent, $otpCode) {
+            // Send email using Laravel's Mail facade with proper HTML content
+            Mail::html($htmlContent, function ($message) use ($email, $otpCode) {
                 $message->to($email)
-                        ->subject('Kode OTP Verifikasi - ZUKSES')
-                        ->setBody($htmlContent, 'text/html');
+                        ->subject('Kode OTP Verifikasi - ZUKSES');
             });
 
             return true;
