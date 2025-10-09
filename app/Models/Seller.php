@@ -10,6 +10,12 @@ class Seller extends Model
     use HasFactory;
 
     /**
+     * Mapping kolom created_at dan updated_at ke bahasa Indonesia.
+     */
+    const CREATED_AT = 'dibuat_pada';
+    const UPDATED_AT = 'diperbarui_pada';
+
+    /**
      * The table associated with the model.
      *
      * @var string
