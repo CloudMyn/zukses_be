@@ -10,6 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check SSH key presence
+        run: |
+            if [ -z "${{ secrets.SSH_KEY }}" ]; then
+              echo "❌ SSH_KEY is empty!"
+              exit 1
+            else
+              echo "✅ SSH_KEY loaded successfully"
+            fi
       - name: Ambil kode dari repo
         uses: actions/checkout@v4
 
@@ -24,6 +32,5 @@ jobs:
             cd /var/www/zukses_be
             git pull origin main
             composer install --no-interaction --prefer-dist --optimize-autoloader
-            php artisan migrate --force
+            php artisan migrate
             php artisan optimize:clear
-            systemctl restart apache2
