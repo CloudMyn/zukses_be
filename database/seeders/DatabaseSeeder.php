@@ -29,20 +29,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create essential admin user
-        User::create([
-            'username' => 'admin',
-            'email' => 'admin@zukses.com',
-            'kata_sandi' => Hash::make('password123'),
-            'tipe_user' => 'ADMIN',
-            'status' => 'AKTIF',
-            'nama_depan' => 'System',
-            'nama_belakang' => 'Administrator',
-            'nama_lengkap' => 'System Administrator',
-            'dibuat_pada' => now(),
-            'diperbarui_pada' => now(),
-        ]);
-
         // Run other seeders for comprehensive data
         $this->call([
             UserSeeder::class,
