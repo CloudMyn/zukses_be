@@ -120,4 +120,124 @@ class User extends Authenticatable
     {
         return $this->hasMany(Device::class, 'id_user', 'id');
     }
+
+    /**
+     * Get the cart for the user.
+     */
+    public function carts()
+    {
+        return $this->hasMany(Cart::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the orders for the user (as customer).
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'id_customer', 'id');
+    }
+
+    /**
+     * Get the reviews for the user.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class, 'id_pembeli', 'id');
+    }
+
+    /**
+     * Get the notifications for the user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(UserNotification::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the activities for the user.
+     */
+    public function activities()
+    {
+        return $this->hasMany(UserActivity::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the search history for the user.
+     */
+    public function searchHistory()
+    {
+        return $this->hasMany(SearchHistory::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the admin profile for the user.
+     */
+    public function adminProfile()
+    {
+        return $this->hasOne(AdminUser::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the sessions for the user.
+     */
+    public function sessions()
+    {
+        return $this->hasMany(Session::class, 'id_user', 'id');
+    }
+
+    /**
+     * Get the chat conversations where the user is the owner.
+     */
+    public function ownedConversations()
+    {
+        return $this->hasMany(ChatConversation::class, 'owner_user_id', 'id');
+    }
+
+    /**
+     * Get the chat participants for the user.
+     */
+    public function chatParticipants()
+    {
+        return $this->hasMany(ChatParticipant::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the messages sent by the user.
+     */
+    public function sentMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'pengirim_user_id', 'id');
+    }
+
+    /**
+     * Get the message statuses for the user.
+     */
+    public function messageStatuses()
+    {
+        return $this->hasMany(MessageStatus::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the message reactions by the user.
+     */
+    public function messageReactions()
+    {
+        return $this->hasMany(MessageReaction::class, 'user_id', 'id');
+    }
+
+    /**
+     * Get the message edits by the user.
+     */
+    public function messageEdits()
+    {
+        return $this->hasMany(MessageEdit::class, 'editor_id', 'id');
+    }
+
+    /**
+     * Get the reports made by the user.
+     */
+    public function reports()
+    {
+        return $this->hasMany(ChatReport::class, 'reporter_id', 'id');
+    }
 }

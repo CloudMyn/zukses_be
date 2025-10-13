@@ -20,7 +20,7 @@ class Address extends Model
      *
      * @var string
      */
-    protected $table = 'alamat';
+    protected $table = 'tb_alamat';
 
     /**
      * The attributes that are mass assignable.

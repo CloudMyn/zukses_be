@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('perangkat_pengguna', function (Blueprint $table) {
+        Schema::create('tb_perangkat_pengguna', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_user');
             $table->string('device_id')->unique();
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('perangkat_pengguna');
+        Schema::dropIfExists('tb_perangkat_pengguna');
     }
 };

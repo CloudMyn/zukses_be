@@ -1,0 +1,72 @@
+
+Table produk {
+  id bigserial [pk]
+}
+
+Table varian_produk {
+  id bigserial [pk]
+  produk_id integer
+  nama_varian varchar(255)
+  urutan integer
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table nilai_varian_produk {
+  id bigserial [pk]
+  varian_id bigint
+  nilai varchar(255)
+  urutan integer
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    varian_id [name: "idx_nilai_varian_produk_varian_id"]
+  }
+}
+
+Table harga_varian_produk {
+  id bigserial [pk]
+  produk_id bigint
+  gambar varchar(255) [null]
+  harga decimal
+  stok integer
+  kode_varian varchar(255) [null]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+Table komposisi_harga_varian {
+  id bigserial [pk]
+  harga_varian_id integer
+  nilai_varian_id bigint
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    harga_varian_id [name: "idx_komposisi_harga_varian_id"]
+    nilai_varian_id [name: "fk_komposisi_nilai_varian"]
+  }
+}
+
+Table pengiriman_varian_produk {
+  id bigserial [pk]
+  harga_varian_id bigint
+  berat float [default: 0]
+  panjang float [default: 0]
+  lebar float [default: 0]
+  tinggi float [default: 0]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    harga_varian_id [name: "idx_pengiriman_varian_id"]
+  }
+}
+
+Ref: varian_produk.produk_id > produk.id
+Ref: nilai_varian_produk.varian_id > varian_produk.id [delete: cascade]
+Ref: harga_varian_produk.produk_id > produk.id
+Ref: komposisi_harga_varian.nilai_varian_id > nilai_varian_produk.id [delete: cascade]
+Ref: komposisi_harga_varian.harga_varian_id > harga_varian_produk.id
+Ref: pengiriman_varian_produk.harga_varian_id > harga_varian_produk.id [delete: cascade]

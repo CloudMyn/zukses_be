@@ -20,7 +20,7 @@ class Seller extends Model
      *
      * @var string
      */
-    protected $table = 'penjual';
+    protected $table = 'tb_penjual';
 
     /**
      * The attributes that are mass assignable.

@@ -94,22 +94,26 @@
 - kategori_produk
 - produk
 - varian_produk
+- nilai_varian_produk
+- harga_varian_produk
+- komposisi_harga_varian
+- pengiriman_varian_produk
 - gambar_produk
 - info_pengiriman_produk
 - log_inventori
 
 ### kategori_produk
-- [ ] **Migration:** Create migration file for kategori_produk table
-- [ ] **Model:** Create CategoryProduct model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create CategoryProduct factory for testing
-- [ ] **Seeder:** Create CategoryProduct seeder
-- [ ] **Policy:** Create CategoryProduct policy for authorization
-- [ ] **Create Request:** Create CategoryProductCreateRequest validation
-- [ ] **Update Request:** Create CategoryProductUpdateRequest validation
+- [x] **Migration:** Create migration file for kategori_produk table
+- [x] **Model:** Create CategoryProduct model with fillable, cast, and relation configurations
+- [x] **Factory:** Create CategoryProduct factory for testing
+- [x] **Seeder:** Create CategoryProduct seeder
+- [x] **Policy:** Create CategoryProduct policy for authorization
+- [x] **Create Request:** Create CategoryProductCreateRequest validation
+- [x] **Update Request:** Create CategoryProductUpdateRequest validation
 
 ### produk
-- [ ] **Migration:** Create migration file for produk table
-- [ ] **Model:** Create Product model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for produk table
+- [x] **Model:** Create Product model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create Product factory for testing
 - [ ] **Seeder:** Create Product seeder
 - [ ] **Policy:** Create Product policy for authorization
@@ -117,38 +121,74 @@
 - [ ] **Update Request:** Create ProductUpdateRequest validation
 
 ### varian_produk
-- [ ] **Migration:** Create migration file for varian_produk table
-- [ ] **Model:** Create ProductVariant model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create ProductVariant factory for testing
-- [ ] **Seeder:** Create ProductVariant seeder
-- [ ] **Policy:** Create ProductVariant policy for authorization
+- [x] **Migration:** Create migration file for varian_produk table
+- [x] **Model:** Create ProductVariant model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ProductVariant factory for testing
+- [x] **Seeder:** Create ProductVariant seeder
+- [x] **Policy:** Create ProductVariant policy for authorization
 - [ ] **Create Request:** Create ProductVariantCreateRequest validation
 - [ ] **Update Request:** Create ProductVariantUpdateRequest validation
 
+### nilai_varian_produk
+- [x] **Migration:** Create migration file for nilai_varian_produk table
+- [x] **Model:** Create ProductVariantValue model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ProductVariantValue factory for testing
+- [x] **Seeder:** Create ProductVariantValue seeder
+- [x] **Policy:** Create ProductVariantValue policy for authorization
+- [x] **Create Request:** Create ProductVariantValueCreateRequest validation
+- [x] **Update Request:** Create ProductVariantValueUpdateRequest validation
+
+### harga_varian_produk
+- [x] **Migration:** Create migration file for harga_varian_produk table
+- [x] **Model:** Create ProductVariantPrice model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ProductVariantPrice factory for testing
+- [x] **Seeder:** Create ProductVariantPrice seeder
+- [x] **Policy:** Create ProductVariantPrice policy for authorization
+- [x] **Create Request:** Create ProductVariantPriceCreateRequest validation
+- [x] **Update Request:** Create ProductVariantPriceUpdateRequest validation
+
+### komposisi_harga_varian
+- [x] **Migration:** Create migration file for komposisi_harga_varian table
+- [x] **Model:** Create VariantPriceComposition model with fillable, cast, and relation configurations
+- [x] **Factory:** Create VariantPriceComposition factory for testing
+- [x] **Seeder:** Create VariantPriceComposition seeder
+- [x] **Policy:** Create VariantPriceComposition policy for authorization
+- [x] **Create Request:** Create VariantPriceCompositionCreateRequest validation
+- [x] **Update Request:** Create VariantPriceCompositionUpdateRequest validation
+
+### pengiriman_varian_produk
+- [x] **Migration:** Create migration file for pengiriman_varian_produk table
+- [x] **Model:** Create VariantShippingInfo model with fillable, cast, and relation configurations
+- [x] **Factory:** Create VariantShippingInfo factory for testing
+- [x] **Seeder:** Create VariantShippingInfo seeder
+- [x] **Policy:** Create VariantShippingInfo policy for authorization
+- [x] **Create Request:** Create VariantShippingInfoCreateRequest validation
+- [x] **Update Request:** Create VariantShippingInfoUpdateRequest validation
+
 ### gambar_produk
-- [ ] **Migration:** Create migration file for gambar_produk table
-- [ ] **Model:** Create ProductImage model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create ProductImage factory for testing
-- [ ] **Seeder:** Create ProductImage seeder
-- [ ] **Policy:** Create ProductImage policy for authorization
+- [x] **Migration:** Create migration file for gambar_produk table
+- [x] **Model:** Create ProductImage model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ProductImage factory for testing
+- [x] **Seeder:** Create ProductImage seeder
+- [x] **Policy:** Create ProductImage policy for authorization
 - [ ] **Create Request:** Create ProductImageCreateRequest validation
 - [ ] **Update Request:** Create ProductImageUpdateRequest validation
 
 ### info_pengiriman_produk
-- [ ] **Migration:** Create migration file for info_pengiriman_produk table
-- [ ] **Model:** Create ProductShippingInfo model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create ProductShippingInfo factory for testing
-- [ ] **Seeder:** Create ProductShippingInfo seeder
-- [ ] **Policy:** Create ProductShippingInfo policy for authorization
+- [x] **Migration:** Create migration file for info_pengiriman_produk table
+- [x] **Model:** Create ProductShippingInfo model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ProductShippingInfo factory for testing
+- [x] **Seeder:** Create ProductShippingInfo seeder
+- [x] **Policy:** Create ProductShippingInfo policy for authorization
 - [ ] **Create Request:** Create ProductShippingInfoCreateRequest validation
 - [ ] **Update Request:** Create ProductShippingInfoUpdateRequest validation
 
 ### log_inventori
-- [ ] **Migration:** Create migration file for log_inventori table
-- [ ] **Model:** Create InventoryLog model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create InventoryLog factory for testing
-- [ ] **Seeder:** Create InventoryLog seeder
-- [ ] **Policy:** Create InventoryLog policy for authorization
+- [x] **Migration:** Create migration file for log_inventori table
+- [x] **Model:** Create InventoryLog model with fillable, cast, and relation configurations
+- [x] **Factory:** Create InventoryLog factory for testing
+- [x] **Seeder:** Create InventoryLog seeder
+- [x] **Policy:** Create InventoryLog policy for authorization
 - [ ] **Create Request:** Create InventoryLogCreateRequest validation
 - [ ] **Update Request:** Create InventoryLogUpdateRequest validation
 
@@ -164,8 +204,8 @@
 - riwayat_status_pesanan
 
 ### keranjang_belanja
-- [ ] **Migration:** Create migration file for keranjang_belanja table
-- [ ] **Model:** Create Cart model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for keranjang_belanja table
+- [x] **Model:** Create Cart model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create Cart factory for testing
 - [ ] **Seeder:** Create Cart seeder
 - [ ] **Policy:** Create Cart policy for authorization
@@ -173,8 +213,8 @@
 - [ ] **Update Request:** Create CartUpdateRequest validation
 
 ### item_keranjang
-- [ ] **Migration:** Create migration file for item_keranjang table
-- [ ] **Model:** Create CartItem model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for item_keranjang table
+- [x] **Model:** Create CartItem model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create CartItem factory for testing
 - [ ] **Seeder:** Create CartItem seeder
 - [ ] **Policy:** Create CartItem policy for authorization
@@ -182,8 +222,8 @@
 - [ ] **Update Request:** Create CartItemUpdateRequest validation
 
 ### pesanan
-- [ ] **Migration:** Create migration file for pesanan table
-- [ ] **Model:** Create Order model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for pesanan table
+- [x] **Model:** Create Order model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create Order factory for testing
 - [ ] **Seeder:** Create Order seeder
 - [ ] **Policy:** Create Order policy for authorization
@@ -191,8 +231,8 @@
 - [ ] **Update Request:** Create OrderUpdateRequest validation
 
 ### item_pesanan
-- [ ] **Migration:** Create migration file for item_pesanan table
-- [ ] **Model:** Create OrderItem model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for item_pesanan table
+- [x] **Model:** Create OrderItem model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create OrderItem factory for testing
 - [ ] **Seeder:** Create OrderItem seeder
 - [ ] **Policy:** Create OrderItem policy for authorization
@@ -219,8 +259,8 @@
 - pengiriman_pesanan
 
 ### metode_pengiriman
-- [ ] **Migration:** Create migration file for metode_pengiriman table
-- [ ] **Model:** Create ShippingMethod model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for metode_pengiriman table
+- [x] **Model:** Create ShippingMethod model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ShippingMethod factory for testing
 - [ ] **Seeder:** Create ShippingMethod seeder
 - [ ] **Policy:** Create ShippingMethod policy for authorization
@@ -228,8 +268,8 @@
 - [ ] **Update Request:** Create ShippingMethodUpdateRequest validation
 
 ### metode_pengiriman_penjual
-- [ ] **Migration:** Create migration file for metode_pengiriman_penjual table
-- [ ] **Model:** Create SellerShippingMethod model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for metode_pengiriman_penjual table
+- [x] **Model:** Create SellerShippingMethod model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create SellerShippingMethod factory for testing
 - [ ] **Seeder:** Create SellerShippingMethod seeder
 - [ ] **Policy:** Create SellerShippingMethod policy for authorization
@@ -237,8 +277,8 @@
 - [ ] **Update Request:** Create SellerShippingMethodUpdateRequest validation
 
 ### tarif_pengiriman
-- [ ] **Migration:** Create migration file for tarif_pengiriman table
-- [ ] **Model:** Create ShippingRate model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for tarif_pengiriman table
+- [x] **Model:** Create ShippingRate model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ShippingRate factory for testing
 - [ ] **Seeder:** Create ShippingRate seeder
 - [ ] **Policy:** Create ShippingRate policy for authorization
@@ -246,8 +286,8 @@
 - [ ] **Update Request:** Create ShippingRateUpdateRequest validation
 
 ### pengiriman_pesanan
-- [ ] **Migration:** Create migration file for pengiriman_pesanan table
-- [ ] **Model:** Create OrderShipping model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for pengiriman_pesanan table
+- [x] **Model:** Create OrderShipping model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create OrderShipping factory for testing
 - [ ] **Seeder:** Create OrderShipping seeder
 - [ ] **Policy:** Create OrderShipping policy for authorization
@@ -264,8 +304,8 @@
 - log_pembayaran
 
 ### metode_pembayaran
-- [ ] **Migration:** Create migration file for metode_pembayaran table
-- [ ] **Model:** Create PaymentMethod model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for metode_pembayaran table
+- [x] **Model:** Create PaymentMethod model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create PaymentMethod factory for testing
 - [ ] **Seeder:** Create PaymentMethod seeder
 - [ ] **Policy:** Create PaymentMethod policy for authorization
@@ -273,8 +313,8 @@
 - [ ] **Update Request:** Create PaymentMethodUpdateRequest validation
 
 ### transaksi_pembayaran
-- [ ] **Migration:** Create migration file for transaksi_pembayaran table
-- [ ] **Model:** Create PaymentTransaction model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for transaksi_pembayaran table
+- [x] **Model:** Create PaymentTransaction model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create PaymentTransaction factory for testing
 - [ ] **Seeder:** Create PaymentTransaction seeder
 - [ ] **Policy:** Create PaymentTransaction policy for authorization
@@ -282,8 +322,8 @@
 - [ ] **Update Request:** Create PaymentTransactionUpdateRequest validation
 
 ### log_pembayaran
-- [ ] **Migration:** Create migration file for log_pembayaran table
-- [ ] **Model:** Create PaymentLog model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for log_pembayaran table
+- [x] **Model:** Create PaymentLog model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create PaymentLog factory for testing
 - [ ] **Seeder:** Create PaymentLog seeder
 - [ ] **Policy:** Create PaymentLog policy for authorization
@@ -300,8 +340,8 @@
 - suara_ulasan
 
 ### ulasan_produk
-- [ ] **Migration:** Create migration file for ulasan_produk table
-- [ ] **Model:** Create ProductReview model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for ulasan_produk table
+- [x] **Model:** Create ProductReview model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ProductReview factory for testing
 - [ ] **Seeder:** Create ProductReview seeder
 - [ ] **Policy:** Create ProductReview policy for authorization
@@ -309,8 +349,8 @@
 - [ ] **Update Request:** Create ProductReviewUpdateRequest validation
 
 ### media_ulasan
-- [ ] **Migration:** Create migration file for media_ulasan table
-- [ ] **Model:** Create ReviewMedia model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for media_ulasan table
+- [x] **Model:** Create ReviewMedia model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ReviewMedia factory for testing
 - [ ] **Seeder:** Create ReviewMedia seeder
 - [ ] **Policy:** Create ReviewMedia policy for authorization
@@ -318,8 +358,8 @@
 - [ ] **Update Request:** Create ReviewMediaUpdateRequest validation
 
 ### suara_ulasan
-- [ ] **Migration:** Create migration file for suara_ulasan table
-- [ ] **Model:** Create ReviewVote model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for suara_ulasan table
+- [x] **Model:** Create ReviewVote model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ReviewVote factory for testing
 - [ ] **Seeder:** Create ReviewVote seeder
 - [ ] **Policy:** Create ReviewVote policy for authorization
@@ -336,8 +376,8 @@
 - riwayat_pencarian
 
 ### notifikasi_pengguna
-- [ ] **Migration:** Create migration file for notifikasi_pengguna table
-- [ ] **Model:** Create UserNotification model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for notifikasi_pengguna table
+- [x] **Model:** Create UserNotification model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create UserNotification factory for testing
 - [ ] **Seeder:** Create UserNotification seeder
 - [ ] **Policy:** Create UserNotification policy for authorization
@@ -345,8 +385,8 @@
 - [ ] **Update Request:** Create UserNotificationUpdateRequest validation
 
 ### aktivitas_pengguna
-- [ ] **Migration:** Create migration file for aktivitas_pengguna table
-- [ ] **Model:** Create UserActivity model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for aktivitas_pengguna table
+- [x] **Model:** Create UserActivity model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create UserActivity factory for testing
 - [ ] **Seeder:** Create UserActivity seeder
 - [ ] **Policy:** Create UserActivity policy for authorization
@@ -354,8 +394,8 @@
 - [ ] **Update Request:** Create UserActivityUpdateRequest validation
 
 ### riwayat_pencarian
-- [ ] **Migration:** Create migration file for riwayat_pencarian table
-- [ ] **Model:** Create SearchHistory model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for riwayat_pencarian table
+- [x] **Model:** Create SearchHistory model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create SearchHistory factory for testing
 - [ ] **Seeder:** Create SearchHistory seeder
 - [ ] **Policy:** Create SearchHistory policy for authorization
@@ -372,8 +412,8 @@
 - laporan_penjualan
 
 ### pengguna_admin
-- [ ] **Migration:** Create migration file for pengguna_admin table
-- [ ] **Model:** Create AdminUser model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for pengguna_admin table
+- [x] **Model:** Create AdminUser model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create AdminUser factory for testing
 - [ ] **Seeder:** Create AdminUser seeder
 - [ ] **Policy:** Create AdminUser policy for authorization
@@ -381,8 +421,8 @@
 - [ ] **Update Request:** Create AdminUserUpdateRequest validation
 
 ### laporan_penjual
-- [ ] **Migration:** Create migration file for laporan_penjual table
-- [ ] **Model:** Create SellerReport model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for laporan_penjual table
+- [x] **Model:** Create SellerReport model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create SellerReport factory for testing
 - [ ] **Seeder:** Create SellerReport seeder
 - [ ] **Policy:** Create SellerReport policy for authorization
@@ -390,8 +430,8 @@
 - [ ] **Update Request:** Create SellerReportUpdateRequest validation
 
 ### laporan_penjualan
-- [ ] **Migration:** Create migration file for laporan_penjualan table
-- [ ] **Model:** Create SalesReport model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for laporan_penjualan table
+- [x] **Model:** Create SalesReport model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create SalesReport factory for testing
 - [ ] **Seeder:** Create SalesReport seeder
 - [ ] **Policy:** Create SalesReport policy for authorization
@@ -406,8 +446,8 @@
 - pengaturan_sistem
 
 ### pengaturan_sistem
-- [ ] **Migration:** Create migration file for pengaturan_sistem table
-- [ ] **Model:** Create SystemSetting model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for pengaturan_sistem table
+- [x] **Model:** Create SystemSetting model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create SystemSetting factory for testing
 - [ ] **Seeder:** Create SystemSetting seeder
 - [ ] **Policy:** Create SystemSetting policy for authorization
@@ -431,8 +471,8 @@
 - chat_laporan_percakapan
 
 ### chat_percakapan
-- [ ] **Migration:** Create migration file for chat_percakapan table
-- [ ] **Model:** Create ChatConversation model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_percakapan table
+- [x] **Model:** Create ChatConversation model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ChatConversation factory for testing
 - [ ] **Seeder:** Create ChatConversation seeder
 - [ ] **Policy:** Create ChatConversation policy for authorization
@@ -440,8 +480,8 @@
 - [ ] **Update Request:** Create ChatConversationUpdateRequest validation
 
 ### chat_peserta_percakapan
-- [ ] **Migration:** Create migration file for chat_peserta_percakapan table
-- [ ] **Model:** Create ChatParticipant model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_peserta_percakapan table
+- [x] **Model:** Create ChatParticipant model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ChatParticipant factory for testing
 - [ ] **Seeder:** Create ChatParticipant seeder
 - [ ] **Policy:** Create ChatParticipant policy for authorization
@@ -449,8 +489,8 @@
 - [ ] **Update Request:** Create ChatParticipantUpdateRequest validation
 
 ### chat_pesan_chat
-- [ ] **Migration:** Create migration file for chat_pesan_chat table
-- [ ] **Model:** Create ChatMessage model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_pesan_chat table
+- [x] **Model:** Create ChatMessage model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ChatMessage factory for testing
 - [ ] **Seeder:** Create ChatMessage seeder
 - [ ] **Policy:** Create ChatMessage policy for authorization
@@ -458,8 +498,8 @@
 - [ ] **Update Request:** Create ChatMessageUpdateRequest validation
 
 ### chat_lampiran_pesan
-- [ ] **Migration:** Create migration file for chat_lampiran_pesan table
-- [ ] **Model:** Create MessageAttachment model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_lampiran_pesan table
+- [x] **Model:** Create MessageAttachment model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create MessageAttachment factory for testing
 - [ ] **Seeder:** Create MessageAttachment seeder
 - [ ] **Policy:** Create MessageAttachment policy for authorization
@@ -467,8 +507,8 @@
 - [ ] **Update Request:** Create MessageAttachmentUpdateRequest validation
 
 ### chat_status_pesan
-- [ ] **Migration:** Create migration file for chat_status_pesan table
-- [ ] **Model:** Create MessageStatus model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_status_pesan table
+- [x] **Model:** Create MessageStatus model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create MessageStatus factory for testing
 - [ ] **Seeder:** Create MessageStatus seeder
 - [ ] **Policy:** Create MessageStatus policy for authorization
@@ -476,8 +516,8 @@
 - [ ] **Update Request:** Create MessageStatusUpdateRequest validation
 
 ### chat_reaksi_pesan
-- [ ] **Migration:** Create migration file for chat_reaksi_pesan table
-- [ ] **Model:** Create MessageReaction model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_reaksi_pesan table
+- [x] **Model:** Create MessageReaction model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create MessageReaction factory for testing
 - [ ] **Seeder:** Create MessageReaction seeder
 - [ ] **Policy:** Create MessageReaction policy for authorization
@@ -485,8 +525,8 @@
 - [ ] **Update Request:** Create MessageReactionUpdateRequest validation
 
 ### chat_edit_pesan
-- [ ] **Migration:** Create migration file for chat_edit_pesan table
-- [ ] **Model:** Create MessageEdit model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_edit_pesan table
+- [x] **Model:** Create MessageEdit model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create MessageEdit factory for testing
 - [ ] **Seeder:** Create MessageEdit seeder
 - [ ] **Policy:** Create MessageEdit policy for authorization
@@ -494,26 +534,26 @@
 - [ ] **Update Request:** Create MessageEditUpdateRequest validation
 
 ### chat_referensi_produk_chat
-- [ ] **Migration:** Create migration file for chat_referensi_produk_chat table
-- [ ] **Model:** Create ChatProductReference model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create ChatProductReference factory for testing
-- [ ] **Seeder:** Create ChatProductReference seeder
-- [ ] **Policy:** Create ChatProductReference policy for authorization
+- [x] **Migration:** Create migration file for chat_referensi_produk_chat table
+- [x] **Model:** Create ChatProductReference model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ChatProductReference factory for testing
+- [x] **Seeder:** Create ChatProductReference seeder
+- [x] **Policy:** Create ChatProductReference policy for authorization
 - [ ] **Create Request:** Create ChatProductReferenceCreateRequest validation
 - [ ] **Update Request:** Create ChatProductReferenceUpdateRequest validation
 
 ### chat_referensi_order_chat
-- [ ] **Migration:** Create migration file for chat_referensi_order_chat table
-- [ ] **Model:** Create ChatOrderReference model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create ChatOrderReference factory for testing
-- [ ] **Seeder:** Create ChatOrderReference seeder
-- [ ] **Policy:** Create ChatOrderReference policy for authorization
+- [x] **Migration:** Create migration file for chat_referensi_order_chat table
+- [x] **Model:** Create ChatOrderReference model with fillable, cast, and relation configurations
+- [x] **Factory:** Create ChatOrderReference factory for testing
+- [x] **Seeder:** Create ChatOrderReference seeder
+- [x] **Policy:** Create ChatOrderReference policy for authorization
 - [ ] **Create Request:** Create ChatOrderReferenceCreateRequest validation
 - [ ] **Update Request:** Create ChatOrderReferenceUpdateRequest validation
 
 ### chat_laporan_percakapan
-- [ ] **Migration:** Create migration file for chat_laporan_percakapan table
-- [ ] **Model:** Create ChatReport model with fillable, cast, and relation configurations
+- [x] **Migration:** Create migration file for chat_laporan_percakapan table
+- [x] **Model:** Create ChatReport model with fillable, cast, and relation configurations
 - [ ] **Factory:** Create ChatReport factory for testing
 - [ ] **Seeder:** Create ChatReport seeder
 - [ ] **Policy:** Create ChatReport policy for authorization
@@ -531,40 +571,40 @@
 - master_kode_pos
 
 ### master_provinsi
-- [ ] **Migration:** Create migration file for master_provinsi table
-- [ ] **Model:** Create Province model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create Province factory for testing
-- [ ] **Seeder:** Create Province seeder with real Indonesian provinces data
-- [ ] **Policy:** Create Province policy for authorization
-- [ ] **Create Request:** Create ProvinceCreateRequest validation
-- [ ] **Update Request:** Create ProvinceUpdateRequest validation
+- [x] **Migration:** Create migration file for master_provinsi table
+- [x] **Model:** Create Province model with fillable, cast, and relation configurations
+- [x] **Factory:** Create Province factory for testing
+- [x] **Seeder:** Create Province seeder with real Indonesian provinces data
+- [x] **Policy:** Create Province policy for authorization
+- [x] **Create Request:** Create ProvinceCreateRequest validation
+- [x] **Update Request:** Create ProvinceUpdateRequest validation
 
 ### master_kota
-- [ ] **Migration:** Create migration file for master_kota table
-- [ ] **Model:** Create City model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create City factory for testing
-- [ ] **Seeder:** Create City seeder with real Indonesian cities data
-- [ ] **Policy:** Create City policy for authorization
-- [ ] **Create Request:** Create CityCreateRequest validation
-- [ ] **Update Request:** Create CityUpdateRequest validation
+- [x] **Migration:** Create migration file for master_kota table
+- [x] **Model:** Create City model with fillable, cast, and relation configurations
+- [x] **Factory:** Create City factory for testing
+- [x] **Seeder:** Create City seeder with real Indonesian cities data
+- [x] **Policy:** Create City policy for authorization
+- [x] **Create Request:** Create CityCreateRequest validation
+- [x] **Update Request:** Create CityUpdateRequest validation
 
 ### master_kecamatan
-- [ ] **Migration:** Create migration file for master_kecamatan table
-- [ ] **Model:** Create District model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create District factory for testing
-- [ ] **Seeder:** Create District seeder with real Indonesian districts data
-- [ ] **Policy:** Create District policy for authorization
-- [ ] **Create Request:** Create DistrictCreateRequest validation
-- [ ] **Update Request:** Create DistrictUpdateRequest validation
+- [x] **Migration:** Create migration file for master_kecamatan table
+- [x] **Model:** Create District model with fillable, cast, and relation configurations
+- [x] **Factory:** Create District factory for testing
+- [x] **Seeder:** Create District seeder with real Indonesian districts data
+- [x] **Policy:** Create District policy for authorization
+- [x] **Create Request:** Create DistrictCreateRequest validation
+- [x] **Update Request:** Create DistrictUpdateRequest validation
 
 ### master_kode_pos
-- [ ] **Migration:** Create migration file for master_kode_pos table
-- [ ] **Model:** Create PostalCode model with fillable, cast, and relation configurations
-- [ ] **Factory:** Create PostalCode factory for testing
-- [ ] **Seeder:** Create PostalCode seeder with real Indonesian postal codes data
-- [ ] **Policy:** Create PostalCode policy for authorization
-- [ ] **Create Request:** Create PostalCodeCreateRequest validation
-- [ ] **Update Request:** Create PostalCodeUpdateRequest validation
+- [x] **Migration:** Create migration file for master_kode_pos table
+- [x] **Model:** Create PostalCode model with fillable, cast, and relation configurations
+- [x] **Factory:** Create PostalCode factory for testing
+- [x] **Seeder:** Create PostalCode seeder with real Indonesian postal codes data
+- [x] **Policy:** Create PostalCode policy for authorization
+- [x] **Create Request:** Create PostalCodeCreateRequest validation
+- [x] **Update Request:** Create PostalCodeUpdateRequest validation
 
 ---
 

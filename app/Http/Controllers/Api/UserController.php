@@ -6,22 +6,164 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserUpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Models\Device;
-use App\Models\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Controller untuk manajemen profil pengguna
+ * Controller untuk manajemen pengguna
  * 
- * Controller ini menangani proses update dan delete profil pengguna
+ * Controller ini menangani operasi CRUD untuk pengguna
  */
 class UserController extends Controller
 {
     /**
-     * Update data pengguna
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        try {
+            $users = User::paginate(15);
+            return UserResource::collection($users);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data pengguna: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        try {
+            $validatedData = $request->validate([
+                'username' => 'required|string|unique:users,username',
+                'email' => 'required|email|unique:users,email',
+                'nomor_telepon' => 'nullable|string|unique:users,nomor_telepon',
+                'kata_sandi' => 'required|string|min:8',
+                'tipe_user' => 'required|in:ADMIN,PELANGGAN,PEDAGANG',
+                'status' => 'required|in:AKTIF,TIDAK_AKTIF,DIBLOKIR,SUSPEND',
+                'nama_depan' => 'nullable|string|max:255',
+                'nama_belakang' => 'nullable|string|max:255',
+                'jenis_kelamin' => 'nullable|in:LAKI_LAKI,PEREMPUAN,RAHASIA',
+                'tanggal_lahir' => 'nullable|date',
+                'bio' => 'nullable|string|max:500',
+            ]);
+
+            $validatedData['kata_sandi'] = Hash::make($validatedData['kata_sandi']);
+
+            $user = User::create($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengguna berhasil dibuat',
+                'data' => new UserResource($user)
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat membuat pengguna: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(User $user)
+    {
+        try {
+            return new UserResource($user);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data pengguna: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, User $user)
+    {
+        try {
+            $validatedData = $request->validate([
+                'username' => 'sometimes|required|string|unique:users,username,' . $user->id,
+                'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
+                'nomor_telepon' => 'nullable|string|unique:users,nomor_telepon,' . $user->id,
+                'kata_sandi' => 'sometimes|required|string|min:8',
+                'tipe_user' => 'sometimes|required|in:ADMIN,PELANGGAN,PEDAGANG',
+                'status' => 'sometimes|required|in:AKTIF,TIDAK_AKTIF,DIBLOKIR,SUSPEND',
+                'nama_depan' => 'nullable|string|max:255',
+                'nama_belakang' => 'nullable|string|max:255',
+                'jenis_kelamin' => 'nullable|in:LAKI_LAKI,PEREMPUAN,RAHASIA',
+                'tanggal_lahir' => 'nullable|date',
+                'bio' => 'nullable|string|max:500',
+            ]);
+
+            if (isset($validatedData['kata_sandi'])) {
+                $validatedData['kata_sandi'] = Hash::make($validatedData['kata_sandi']);
+            }
+
+            $user->update($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengguna berhasil diperbarui',
+                'data' => new UserResource($user)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui pengguna: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $user)
+    {
+        try {
+            // Hapus semua token Sanctum
+            $user->tokens()->delete();
+
+            // Hapus data terkait pengguna
+            $user->sellers()->delete();
+            $user->addresses()->delete();
+            $user->verifications()->delete();
+            $user->devices()->delete();
+            $user->reviews()->delete();
+            $user->activities()->delete();
+            $user->searchHistories()->delete();
+            $user->notifications()->delete();
+            $user->carts()->delete();
+            $user->orders()->delete();
+            $user->cartItems()->delete();
+
+            // Hapus pengguna
+            $user->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pengguna berhasil dihapus'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus pengguna: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update data pengguna (profil)
      * 
      * @param UserUpdateRequest $request
      * @return JsonResponse

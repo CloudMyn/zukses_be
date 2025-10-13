@@ -176,37 +176,85 @@ Table produk {
   diperbarui_pada timestamp
 }
 
-// Tabel Varian Produk (Enhanced)
+// Tabel Varian Produk (New Structure)
 Table varian_produk {
   id bigint [PK]
-  id_produk bigint [ref: > produk.id]
-  id_admin bigint [ref: > users.id, null]
-  sku_varian varchar [unique]
-  nama_varian varchar
-  urutan_variant integer [default: 0]
+  produk_id integer [ref: > produk.id]
+  nama_varian varchar(255)
+  urutan integer [default: 0]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    produk_id [name: "idx_varian_produk_produk_id"]
+  }
+}
+
+// Tabel Nilai Varian Produk
+Table nilai_varian_produk {
+  id bigint [PK]
+  varian_id bigint [ref: > varian_produk.id]
+  nilai varchar(255)
+  urutan integer [default: 0]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    varian_id [name: "idx_nilai_varian_produk_varian_id"]
+  }
+}
+
+// Tabel Harga Varian Produk
+Table harga_varian_produk {
+  id bigint [PK]
+  produk_id bigint [ref: > produk.id]
+  gambar varchar(255) [null]
   harga decimal(12,2)
-  harga_diskon decimal(12,2) [null] // untuk diskon
-  diskon decimal(5,2) [null]
-  stok_varian integer [default: 0]
-  berat_varian decimal(8,2) [null]
-  panjang_varian decimal(8,2) [null]
-  lebar_varian decimal(8,2) [null]
-  tinggi_varian decimal(8,2) [null]
-  gambar_varian varchar [null]
-  is_varian_aktif boolean [default: true]
-  is_varian_utama boolean [default: false]
-  is_approved boolean [default: false]
-  atribut_varian json [null] // {warna: "Merah", ukuran: "L", bahan: "Katun"}
-  kode_barcode varchar [null]
-  dibuat_pada timestamp
-  diperbarui_pada timestamp
+  stok integer [default: 0]
+  kode_varian varchar(255) [null]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    produk_id [name: "idx_harga_varian_produk_produk_id"]
+  }
+}
+
+// Tabel Komposisi Harga Varian
+Table komposisi_harga_varian {
+  id bigint [PK]
+  harga_varian_id integer [ref: > harga_varian_produk.id]
+  nilai_varian_id bigint [ref: > nilai_varian_produk.id]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    harga_varian_id [name: "idx_komposisi_harga_varian_id"]
+    nilai_varian_id [name: "fk_komposisi_nilai_varian"]
+  }
+}
+
+// Tabel Pengiriman Varian Produk
+Table pengiriman_varian_produk {
+  id bigint [PK]
+  harga_varian_id bigint [ref: > harga_varian_produk.id]
+  berat float [default: 0]
+  panjang float [default: 0]
+  lebar float [default: 0]
+  tinggi float [default: 0]
+  dibuat_pada timestamp [default: `CURRENT_TIMESTAMP`]
+  diperbarui_pada timestamp [default: `CURRENT_TIMESTAMP`]
+
+  Indexes {
+    harga_varian_id [name: "idx_pengiriman_varian_id"]
+  }
 }
 
 // Tabel Gambar Produk (Enhanced)
 Table gambar_produk {
   id bigint [PK]
   id_produk bigint [ref: > produk.id]
-  id_varian bigint [ref: > varian_produk.id, null]
+  id_harga_varian bigint [ref: > harga_varian_produk.id, null]
   url_gambar varchar
   alt_text varchar [null]
   urutan_gambar integer [default: 0]
@@ -235,7 +283,7 @@ Table info_pengiriman_produk {
 Table log_inventori {
   id bigint [PK]
   id_produk bigint [ref: > produk.id]
-  id_varian bigint [ref: > varian_produk.id, null]
+  id_harga_varian bigint [ref: > harga_varian_produk.id, null]
   tipe_transaksi enum('MASUK', 'KELUAR', 'PENYESUAIAN', 'RUSAK', 'KEMBALI')
   jumlah_transaksi integer
   stok_sebelum integer
@@ -267,7 +315,7 @@ Table item_keranjang {
   id bigint [PK]
   id_cart bigint [ref: > keranjang_belanja.id]
   id_produk bigint [ref: > produk.id]
-  id_varian bigint [ref: > varian_produk.id, null]
+  id_harga_varian bigint [ref: > harga_varian_produk.id, null]
   nama_produk varchar // snapshot untuk tracking perubahan
   gambar_produk varchar [null]
   harga_satuan decimal(12,2) // harga saat ditambahkan
@@ -317,7 +365,7 @@ Table item_pesanan {
   id_pesanan bigint [ref: > pesanan.id]
   id_seller bigint [ref: > penjual.id]
   id_produk bigint [ref: > produk.id]
-  id_varian bigint [ref: > varian_produk.id, null]
+  id_harga_varian bigint [ref: > harga_varian_produk.id, null]
   nama_produk varchar
   gambar_produk varchar [null]
   sku_produk varchar
@@ -455,7 +503,7 @@ Table log_pembayaran {
 Table ulasan_produk {
   id bigint [PK]
   id_produk bigint [ref: > produk.id]
-  id_varian bigint [ref: > varian_produk.id, null]
+  id_harga_varian bigint [ref: > harga_varian_produk.id, null]
   id_pembeli bigint [ref: > users.id]
   id_pesanan bigint [ref: > pesanan.id]
   rating_produk integer // 1-5 scale
@@ -607,7 +655,7 @@ Table master_provinsi {
 // Tabel Master Kota/Kabupaten
 Table master_kota {
   id bigint [PK, increment]
-  provinsi_id bigint [not null, index, note: "Foreign key ke master_provinsi"]
+  provinsi_id bigint [not null, note: "Foreign key ke master_provinsi"]
   nama varchar [not null, note: "Nama kota/kabupaten"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
@@ -621,7 +669,7 @@ Table master_kota {
 // Tabel Master Kecamatan
 Table master_kecamatan {
   id bigint [PK, increment]
-  kota_id bigint [not null, index, note: "Foreign key ke master_kota"]
+  kota_id bigint [not null, note: "Foreign key ke master_kota"]
   nama varchar [not null, note: "Nama kecamatan"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
@@ -635,7 +683,7 @@ Table master_kecamatan {
 // Tabel Master Kode Pos
 Table master_kode_pos {
   id bigint [PK, increment]
-  kecamatan_id bigint [not null, index, note: "Foreign key ke master_kecamatan"]
+  kecamatan_id bigint [not null, note: "Foreign key ke master_kecamatan"]
   kode varchar [not null, note: "Kode pos"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
@@ -651,14 +699,14 @@ Table master_kode_pos {
 // Tabel Percakapan
 Table chat_percakapan {
   id bigint [PK, increment]
-  tipe enum [""private"", ""group"", ""order_support"", ""product_support"", ""system""] [not null, note: ""Tipe percakapan""]
-  judul varchar(512) [null, note: ""Judul percakapan (untuk group)""]
-  owner_user_id bigint [null, note: ""ID user pemilik""]
-  owner_shop_profile_id bigint [null, note: ""ID toko pemilik""]
-  metadata json [null, note: ""Data tambahan percakapan""]
-  last_message_id bigint [null, note: ""ID pesan terakhir""]
-  last_message_at timestamp [null, note: ""Waktu pesan terakhir""]
-  is_open boolean [default: true, not null, note: ""Status percakapan aktif""]
+  tipe enum ['private', 'group', 'order_support', 'product_support', 'system'] [not null, note: "Tipe percakapan"]
+  judul varchar(512) [null, note: "Judul percakapan (untuk group)"]
+  owner_user_id bigint [null, note: "ID user pemilik"]
+  owner_shop_profile_id bigint [null, note: "ID toko pemilik"]
+  metadata json [null, note: "Data tambahan percakapan"]
+  last_message_id bigint [null, note: "ID pesan terakhir"]
+  last_message_at timestamp [null, note: "Waktu pesan terakhir"]
+  is_open boolean [default: true, not null, note: "Status percakapan aktif"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -674,18 +722,18 @@ Table chat_percakapan {
 // Tabel Peserta Percakapan
 Table chat_peserta_percakapan {
   id bigint [PK, increment]
-  percakapan_id bigint [not null, note: ""Foreign key ke chat_percakapan""]
-  user_id bigint [null, note: ""ID user peserta""]
-  shop_profile_id bigint [null, note: ""ID toko peserta""]
-  role enum [""participant"", ""admin"", ""agent"", ""owner""] [default: ""participant"", not null, note: ""Role peserta""]
-  bergabung_pada timestamp [null, note: ""Waktu bergabung""]
-  keluar_pada timestamp [null, note: ""Waktu keluar""]
-  last_read_message_id bigint [null, note: ""ID pesan terakhir dibaca""]
-  terakhir_dibaca_pada timestamp [null, note: ""Waktu terakhir membaca""]
-  jumlah_belum_dibaca int [default: 0, not null, note: ""Jumlah pesan belum dibaca""]
-  dihentikan_hingga timestamp [null, note: ""Notifikasi dimatikan hingga""]
-  is_blocked boolean [default: false, not null, note: ""Status blokir""]
-  preferences json [null, note: ""Preferensi peserta""]
+  percakapan_id bigint [not null, note: "Foreign key ke chat_percakapan"]
+  user_id bigint [null, note: "ID user peserta"]
+  shop_profile_id bigint [null, note: "ID toko peserta"]
+  role enum ["participant", "admin", "agent", "owner"] [default: "participant", not null, note: "Role peserta"]
+  bergabung_pada timestamp [null, note: "Waktu bergabung"]
+  keluar_pada timestamp [null, note: "Waktu keluar"]
+  last_read_message_id bigint [null, note: "ID pesan terakhir dibaca"]
+  terakhir_dibaca_pada timestamp [null, note: "Waktu terakhir membaca"]
+  jumlah_belum_dibaca int [default: 0, not null, note: "Jumlah pesan belum dibaca"]
+  dihentikan_hingga timestamp [null, note: "Notifikasi dimatikan hingga"]
+  is_blocked boolean [default: false, not null, note: "Status blokir"]
+  preferences json [null, note: "Preferensi peserta"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -701,19 +749,19 @@ Table chat_peserta_percakapan {
 // Tabel Pesan Chat
 Table chat_pesan_chat {
   id bigint [PK, increment]
-  percakapan_id bigint [not null, note: ""Foreign key ke chat_percakapan""]
-  pengirim_user_id bigint [null, note: ""ID user pengirim""]
-  pengirim_shop_profile_id bigint [null, note: ""ID toko pengirim""]
-  konten text [null, note: ""Isi pesan""]
-  tipe_konten enum [""text"", ""system"", ""template"", ""product_card"", ""order_card""] [default: ""text"", not null, note: ""Tipe konten pesan""]
-  metadata json [null, note: ""Data tambahan pesan""]
-  parent_message_id bigint [null, note: ""ID pesan induk (untuk thread)""]
-  reply_to_message_id bigint [null, note: ""ID pesan yang dibalas""]
+  percakapan_id bigint [not null, note: "Foreign key ke chat_percakapan"]
+  pengirim_user_id bigint [null, note: "ID user pengirim"]
+  pengirim_shop_profile_id bigint [null, note: "ID toko pengirim"]
+  konten text [null, note: "Isi pesan"]
+  tipe_konten enum ["text", "system", "template", "product_card", "order_card"] [default: "text", not null, note: "Tipe konten pesan"]
+  metadata json [null, note: "Data tambahan pesan"]
+  parent_message_id bigint [null, note: "ID pesan induk (untuk thread)"]
+  reply_to_message_id bigint [null, note: "ID pesan yang dibalas"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
-  diedit_pada timestamp [null, note: ""Waktu edit terakhir""]
-  is_dihapus boolean [default: false, not null, note: ""Status penghapusan""]
-  dihapus_pada timestamp [null, note: ""Waktu penghapusan""]
+  diedit_pada timestamp [null, note: "Waktu edit terakhir"]
+  is_dihapus boolean [default: false, not null, note: "Status penghapusan"]
+  dihapus_pada timestamp [null, note: "Waktu penghapusan"]
 
   indexes {
     (id) [PK]
@@ -730,13 +778,13 @@ Table chat_pesan_chat {
 // Tabel Lampiran Pesan
 Table chat_lampiran_pesan {
   id bigint [PK, increment]
-  pesan_id bigint [not null, note: ""Foreign key ke chat_pesan_chat""]
-  tipe varchar(32) [not null, note: ""Tipe lampiran: image|video|audio|file|sticker""]
-  url varchar(2048) [not null, note: ""URL file lampiran""]
-  nama_file varchar(512) [null, note: ""Nama asli file""]
-  content_type varchar(128) [null, note: ""MIME type file""]
-  ukuran_bytes int [null, note: ""Ukuran file dalam bytes""]
-  metadata json [null, note: ""Data tambahan lampiran""]
+  pesan_id bigint [not null, note: "Foreign key ke chat_pesan_chat"]
+  tipe varchar(32) [not null, note: "Tipe lampiran: image|video|audio|file|sticker"]
+  url varchar(2048) [not null, note: "URL file lampiran"]
+  nama_file varchar(512) [null, note: "Nama asli file"]
+  content_type varchar(128) [null, note: "MIME type file"]
+  ukuran_bytes int [null, note: "Ukuran file dalam bytes"]
+  metadata json [null, note: "Data tambahan lampiran"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -750,11 +798,11 @@ Table chat_lampiran_pesan {
 // Tabel Status Pesan
 Table chat_status_pesan {
   id bigint [PK, increment]
-  pesan_id bigint [not null, note: ""Foreign key ke chat_pesan_chat""]
-  user_id bigint [not null, note: ""ID user penerima""]
-  status enum [""sent"", ""delivered"", ""read"", ""failed""] [not null, note: ""Status pengiriman pesan""]
-  status_pada timestamp [null, note: ""Waktu status terakhir""]
-  device_info json [null, note: ""Informasi device penerima""]
+  pesan_id bigint [not null, note: "Foreign key ke chat_pesan_chat"]
+  user_id bigint [not null, note: "ID user penerima"]
+  status enum ["sent", "delivered", "read", "failed"] [not null, note: "Status pengiriman pesan"]
+  status_pada timestamp [null, note: "Waktu status terakhir"]
+  device_info json [null, note: "Informasi device penerima"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -770,10 +818,10 @@ Table chat_status_pesan {
 // Tabel Reaksi Pesan
 Table chat_reaksi_pesan {
   id bigint [PK, increment]
-  pesan_id bigint [not null, note: ""Foreign key ke chat_pesan_chat""]
-  user_id bigint [not null, note: ""ID user yang memberi reaksi""]
-  reaksi varchar(64) [not null, note: ""Emoji/simbol reaksi""]
-  direaksi_pada timestamp [null, note: ""Waktu memberi reaksi""]
+  pesan_id bigint [not null, note: "Foreign key ke chat_pesan_chat"]
+  user_id bigint [not null, note: "ID user yang memberi reaksi"]
+  reaksi varchar(64) [not null, note: "Emoji/simbol reaksi"]
+  direaksi_pada timestamp [null, note: "Waktu memberi reaksi"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -788,11 +836,11 @@ Table chat_reaksi_pesan {
 // Tabel Edit Pesan
 Table chat_edit_pesan {
   id bigint [PK, increment]
-  pesan_id bigint [not null, note: ""Foreign key ke chat_pesan_chat""]
-  editor_id bigint [not null, note: ""ID user yang mengedit""]
-  konten_sebelumnya text [not null, note: ""Konten sebelum edit""]
-  alasan_edit varchar(255) [null, note: ""Alasan pengeditan""]
-  diedit_pada timestamp [null, note: ""Waktu pengeditan""]
+  pesan_id bigint [not null, note: "Foreign key ke chat_pesan_chat"]
+  editor_id bigint [not null, note: "ID user yang mengedit"]
+  konten_sebelumnya text [not null, note: "Konten sebelum edit"]
+  alasan_edit varchar(255) [null, note: "Alasan pengeditan"]
+  diedit_pada timestamp [null, note: "Waktu pengeditan"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -807,10 +855,10 @@ Table chat_edit_pesan {
 // Tabel Referensi Produk Chat
 Table chat_referensi_produk_chat {
   id bigint [PK, increment]
-  pesan_id bigint [not null, note: ""Foreign key ke chat_pesan_chat""]
-  product_id bigint [null, note: ""ID produk""]
-  marketplace_product_id varchar(128) [null, note: ""ID produk dari marketplace""]
-  snapshot json [null, note: ""Data snapshot produk saat direferensikan""]
+  pesan_id bigint [not null, note: "Foreign key ke chat_pesan_chat"]
+  product_id bigint [null, note: "ID produk"]
+  marketplace_product_id varchar(128) [null, note: "ID produk dari marketplace"]
+  snapshot json [null, note: "Data snapshot produk saat direferensikan"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -825,10 +873,10 @@ Table chat_referensi_produk_chat {
 // Tabel Referensi Order Chat
 Table chat_referensi_order_chat {
   id bigint [PK, increment]
-  pesan_id bigint [not null, note: ""Foreign key ke chat_pesan_chat""]
-  order_id bigint [null, note: ""ID order""]
-  marketplace_order_id varchar(128) [null, note: ""ID order dari marketplace""]
-  snapshot json [null, note: ""Data snapshot order saat direferensikan""]
+  pesan_id bigint [not null, note: "Foreign key ke chat_pesan_chat"]
+  order_id bigint [null, note: "ID order"]
+  marketplace_order_id varchar(128) [null, note: "ID order dari marketplace"]
+  snapshot json [null, note: "Data snapshot order saat direferensikan"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -843,10 +891,10 @@ Table chat_referensi_order_chat {
 // Tabel Laporan Percakapan
 Table chat_laporan_percakapan {
   id bigint [PK, increment]
-  percakapan_id bigint [null, note: ""Foreign key ke chat_percakapan""]
-  reporter_id bigint [not null, note: ""ID user pelapor""]
-  alasan varchar(512) [not null, note: ""Alasan pelaporan""]
-  metadata json [null, note: ""Data tambahan pelaporan""]
+  percakapan_id bigint [null, note: "Foreign key ke chat_percakapan"]
+  reporter_id bigint [not null, note: "ID user pelapor"]
+  alasan varchar(512) [not null, note: "Alasan pelaporan"]
+  metadata json [null, note: "Data tambahan pelaporan"]
   dibuat_pada timestamp
   diperbarui_pada timestamp
 
@@ -901,3 +949,19 @@ Ref: chat_laporan_percakapan.percakapan_id > chat_percakapan.id [delete: set nul
 // CONSTRAINTS UNIK CHAT SYSTEM
 Ref: chat_status_pesan.pesan_id > chat_status_pesan.user_id [unique]
 Ref: chat_reaksi_pesan.(pesan_id, user_id, reaksi) [unique]
+
+// RELASI UNTUK SISTEM PRODUK VARIAN BARU
+// Relasi internal Product Variant System
+Ref: varian_produk.produk_id > produk.id [delete: cascade]
+Ref: nilai_varian_produk.varian_id > varian_produk.id [delete: cascade]
+Ref: harga_varian_produk.produk_id > produk.id [delete: cascade]
+Ref: komposisi_harga_varian.harga_varian_id > harga_varian_produk.id [delete: cascade]
+Ref: komposisi_harga_varian.nilai_varian_id > nilai_varian_produk.id [delete: cascade]
+Ref: pengiriman_varian_produk.harga_varian_id > harga_varian_produk.id [delete: cascade]
+
+// Relasi dari tabel lain ke sistem variant baru
+Ref: gambar_produk.id_harga_varian > harga_varian_produk.id [delete: set null]
+Ref: log_inventori.id_harga_varian > harga_varian_produk.id [delete: set null]
+Ref: item_keranjang.id_harga_varian > harga_varian_produk.id [delete: set null]
+Ref: item_pesanan.id_harga_varian > harga_varian_produk.id [delete: set null]
+Ref: ulasan_produk.id_harga_varian > harga_varian_produk.id [delete: set null]

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('verifikasi_pengguna', function (Blueprint $table) {
+        Schema::create('tb_verifikasi_pengguna', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_user')->nullable();
             $table->enum('jenis_verifikasi', ['EMAIL', 'TELEPON', 'KTP', 'NPWP']);
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('verifikasi_pengguna');
+        Schema::dropIfExists('tb_verifikasi_pengguna');
     }
 };

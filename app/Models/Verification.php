@@ -20,7 +20,7 @@ class Verification extends Model
      *
      * @var string
      */
-    protected $table = 'verifikasi_pengguna';
+    protected $table = 'tb_verifikasi_pengguna';
 
     /**
      * The attributes that are mass assignable.

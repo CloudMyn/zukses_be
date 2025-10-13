@@ -20,7 +20,7 @@ class UserSession extends Model
      *
      * @var string
      */
-    protected $table = 'sesi_pengguna';
+    protected $table = 'tb_sesi_pengguna';
 
     /**
      * The attributes that are mass assignable.
