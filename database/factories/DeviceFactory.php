@@ -30,6 +30,8 @@ class DeviceFactory extends Factory
             'terakhir_aktif_pada' => fake()->dateTime(),
             'dibuat_pada' => fake()->dateTime(),
             'diperbarui_pada' => fake()->dateTime(),
+            // Virtual attributes for testing
+            'is_trusted' => fake()->boolean(),
         ];
     }
 }

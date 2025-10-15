@@ -40,7 +40,7 @@ class ProductUpdateRequest extends FormRequest
             ],
             'deskripsi_lengkap' => 'nullable|string',
             'kondisi_produk' => 'sometimes|required|in:BARU,BEKAS',
-            'status_produk' => 'sometimes|required|in:DRAFT,AKTIF,NONAKTIF,DITANGGUH,DITOLAK',
+            'status_produk' => 'sometimes|required|in:DRAFT,AKTIF,TIDAK_AKTIF,DITOLAK,HAPUS',
             'berat_paket' => 'sometimes|required|numeric|min:0',
             'panjang_paket' => 'sometimes|required|numeric|min:0',
             'lebar_paket' => 'sometimes|required|numeric|min:0',

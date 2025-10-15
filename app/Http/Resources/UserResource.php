@@ -22,6 +22,7 @@ class UserResource extends JsonResource
             'username' => $this->username,
             'email' => $this->email,
             'nomor_telepon' => $this->nomor_telepon,
+            'no_hp' => $this->nomor_telepon, // API-friendly alias
             'tipe_user' => $this->tipe_user,
             'status' => $this->status,
             'email_terverifikasi_pada' => $this->email_terverifikasi_pada,

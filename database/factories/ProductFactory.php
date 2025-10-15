@@ -24,7 +24,7 @@ class ProductFactory extends Factory
             'slug_produk' => $this->faker->unique()->slug(),
             'deskripsi_lengkap' => $this->faker->paragraphs(3, true),
             'kondisi_produk' => $this->faker->randomElement(['BARU', 'BEKAS']),
-            'status_produk' => $this->faker->randomElement(['DRAFT', 'AKTIF', 'NONAKTIF', 'DITANGGUH', 'DITOLAK']),
+            'status_produk' => $this->faker->randomElement(['DRAFT', 'AKTIF', 'TIDAK_AKTIF', 'DITOLAK', 'HAPUS']),
             'berat_paket' => $this->faker->randomFloat(2, 0.1, 10.0),
             'panjang_paket' => $this->faker->randomFloat(2, 1, 50),
             'lebar_paket' => $this->faker->randomFloat(2, 1, 50),

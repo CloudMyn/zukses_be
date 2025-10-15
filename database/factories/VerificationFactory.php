@@ -26,6 +26,7 @@ class VerificationFactory extends Factory
             'kedaluwarsa_pada' => fake()->dateTimeBetween('now', '+1 hour'),
             'telah_digunakan' => fake()->boolean(),
             'jumlah_coba' => fake()->numberBetween(0, 3),
+            'status_verifikasi' => fake()->randomElement(['BELUM_DIPROSES', 'DIPROSES', 'DITERIMA', 'DITOLAK']),
             'dibuat_pada' => fake()->dateTime(),
             'diperbarui_pada' => fake()->dateTime(),
         ];

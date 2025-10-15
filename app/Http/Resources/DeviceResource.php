@@ -19,16 +19,12 @@ class DeviceResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'id_user' => $this->id_user,
             'device_id' => $this->device_id,
             'device_type' => $this->device_type,
             'device_name' => $this->device_name,
-            'operating_system' => $this->operating_system,
-            'app_version' => $this->app_version,
-            'push_token' => $this->push_token,
-            'adalah_device_terpercaya' => $this->adalah_device_terpercaya,
-            'terakhir_aktif_pada' => $this->terakhir_aktif_pada,
-            'dibuat_pada' => $this->dibuat_pada,
-            'diperbarui_pada' => $this->diperbarui_pada,
+            'is_trusted' => $this->is_trusted,
+            'last_used_at' => $this->last_used_at,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

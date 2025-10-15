@@ -21,6 +21,8 @@ class SellerResource extends JsonResource
             'id' => $this->id,
             'id_user' => $this->id_user,
             'nama_toko' => $this->nama_toko,
+            'deskripsi' => $this->deskripsi_toko, // API-friendly alias
+            'foto_profil' => $this->logo_toko, // API-friendly alias
             'slug_toko' => $this->slug_toko,
             'deskripsi_toko' => $this->deskripsi_toko,
             'logo_toko' => $this->logo_toko,
@@ -40,6 +42,16 @@ class SellerResource extends JsonResource
             'diperbarui_pada' => $this->diperbarui_pada,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'user' => $this->whenLoaded('user', function () {
+                return [
+                    'id' => $this->user->id,
+                    'username' => $this->user->username,
+                    'email' => $this->user->email,
+                    'tipe_user' => $this->user->tipe_user,
+                    'no_hp' => $this->user->nomor_telepon, // API-friendly alias
+                    'status' => $this->user->status
+                ];
+            })
         ];
     }
 }

@@ -27,7 +27,7 @@ class ProductCreateRequest extends FormRequest
             'slug_produk' => 'required|string|unique:tb_produk,slug_produk|max:500',
             'deskripsi_lengkap' => 'nullable|string',
             'kondisi_produk' => 'required|in:BARU,BEKAS',
-            'status_produk' => 'required|in:DRAFT,AKTIF,NONAKTIF,DITANGGUH,DITOLAK',
+            'status_produk' => 'required|in:DRAFT,AKTIF,TIDAK_AKTIF,DITOLAK,HAPUS',
             'berat_paket' => 'required|numeric|min:0',
             'panjang_paket' => 'required|numeric|min:0',
             'lebar_paket' => 'required|numeric|min:0',

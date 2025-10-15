@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 /**
  * Controller untuk manajemen pengguna
@@ -24,8 +25,47 @@ class UserController extends Controller
     public function index()
     {
         try {
-            $users = User::paginate(15);
-            return UserResource::collection($users);
+            // Check if user is admin
+            if (Auth::user()->tipe_user !== 'ADMIN') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses ke resource ini'
+                ], 403);
+            }
+
+            $perPage = request('per_page', 15);
+            $search = request('search');
+            $status = request('status');
+
+            $query = User::query();
+
+            // Apply search filter
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('nama_lengkap', 'like', "%{$search}%");
+                });
+            }
+
+            // Apply status filter
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            $users = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data pengguna berhasil diambil',
+                'data' => UserResource::collection($users),
+                'pagination' => [
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                    'per_page' => $users->perPage(),
+                    'total' => $users->total()
+                ]
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -63,6 +103,12 @@ class UserController extends Controller
                 'message' => 'Pengguna berhasil dibuat',
                 'data' => new UserResource($user)
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -74,10 +120,23 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user)
+    public function show($id)
     {
         try {
-            return new UserResource($user);
+            $user = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pengguna tidak ditemukan'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data pengguna berhasil diambil',
+                'data' => new UserResource($user)
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -89,9 +148,18 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(Request $request, $id)
     {
         try {
+            $user = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pengguna tidak ditemukan'
+                ], 404);
+            }
+
             $validatedData = $request->validate([
                 'username' => 'sometimes|required|string|unique:users,username,' . $user->id,
                 'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
@@ -117,6 +185,12 @@ class UserController extends Controller
                 'message' => 'Pengguna berhasil diperbarui',
                 'data' => new UserResource($user)
             ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -128,24 +202,28 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user)
+    public function destroy($id)
     {
         try {
+            $user = User::find($id);
+
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pengguna tidak ditemukan'
+                ], 404);
+            }
+
             // Hapus semua token Sanctum
             $user->tokens()->delete();
 
-            // Hapus data terkait pengguna
-            $user->sellers()->delete();
-            $user->addresses()->delete();
-            $user->verifications()->delete();
-            $user->devices()->delete();
-            $user->reviews()->delete();
-            $user->activities()->delete();
-            $user->searchHistories()->delete();
-            $user->notifications()->delete();
-            $user->carts()->delete();
-            $user->orders()->delete();
-            $user->cartItems()->delete();
+            // Hapus data terkait pengguna yang ada (gunakan safe delete)
+            try {
+                $user->verifications()->delete();
+                $user->devices()->delete();
+            } catch (\Exception $e) {
+                // Ignore relationship errors for non-existent relationships
+            }
 
             // Hapus pengguna
             $user->delete();

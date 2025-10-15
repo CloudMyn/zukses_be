@@ -35,6 +35,7 @@ class Verification extends Model
         'kedaluwarsa_pada',
         'telah_digunakan',
         'jumlah_coba',
+        'status_verifikasi',
         'dibuat_pada',
         'diperbarui_pada',
     ];

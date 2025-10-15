@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
     
     Route::apiResource('devices', \App\Http\Controllers\Api\DeviceController::class);
+    Route::post('/devices/{device}/trust', [\App\Http\Controllers\Api\DeviceController::class, 'trust']);
     
     Route::apiResource('verifications', \App\Http\Controllers\Api\VerificationController::class);
     

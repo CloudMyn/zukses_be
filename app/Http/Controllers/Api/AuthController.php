@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 
 /**
@@ -43,6 +44,7 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         try {
+            // Validasi input
             $request->validate([
                 'username' => 'required|string|max:255|unique:users',
                 'email' => 'required|string', // Changed from email to string to accept both email and phone
@@ -94,6 +96,12 @@ class AuthController extends Controller
                     'token' => $user->createToken('auth_token')->plainTextToken
                 ]
             ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -110,15 +118,16 @@ class AuthController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $request->validate([
-            'contact' => 'required|string',
-            'password' => 'required|string',
-            'device_id' => 'required|string',
-            'device_name' => 'required|string',
-            'operating_system' => 'required|string',
-        ]);
-
         try {
+            // Validasi input
+            $request->validate([
+                'contact' => 'required|string',
+                'password' => 'required|string',
+                'device_id' => 'required|string',
+                'device_name' => 'required|string',
+                'operating_system' => 'required|string',
+            ]);
+
             // Tentukan apakah kontak adalah email atau nomor telepon
             $isEmail = filter_var($request->contact, FILTER_VALIDATE_EMAIL);
 
@@ -175,6 +184,12 @@ class AuthController extends Controller
                     'device' => new DeviceResource($device)
                 ]
             ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $e->errors()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

@@ -21,15 +21,12 @@ class VerificationResource extends JsonResource
             'id' => $this->id,
             'id_user' => $this->id_user,
             'jenis_verifikasi' => $this->jenis_verifikasi,
-            'nilai_verifikasi' => $this->nilai_verifikasi,
+            'nomor_verifikasi' => $this->nilai_verifikasi,
             'kode_verifikasi' => $this->kode_verifikasi,
-            'kedaluwarsa_pada' => $this->kedaluwarsa_pada,
-            'telah_digunakan' => $this->telah_digunakan,
-            'jumlah_coba' => $this->jumlah_coba,
-            'dibuat_pada' => $this->dibuat_pada,
-            'diperbarui_pada' => $this->diperbarui_pada,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'waktu_kadaluarsa' => $this->kedaluwarsa_pada,
+            'status_verifikasi' => $this->status_verifikasi,
+            'created_at' => $this->dibuat_pada,
+            'updated_at' => $this->diperbarui_pada,
         ];
     }
 }

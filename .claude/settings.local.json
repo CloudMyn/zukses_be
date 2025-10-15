@@ -3,7 +3,11 @@
     "allow": [
       "Bash(php artisan make:migration:*)",
       "Bash(mv:*)",
-      "Bash(php artisan migrate:*)"
+      "Bash(php artisan migrate:*)",
+      "Bash(php artisan test:*)",
+      "Bash(./vendor/bin/phpunit)",
+      "Bash(./vendor/bin/phpunit:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

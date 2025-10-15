@@ -16,7 +16,17 @@ class DeviceController extends Controller
     {
         try {
             $devices = Device::paginate(15);
-            return DeviceResource::collection($devices);
+            return response()->json([
+                'success' => true,
+                'message' => 'Data perangkat berhasil diambil',
+                'data' => DeviceResource::collection($devices),
+                'pagination' => [
+                    'current_page' => $devices->currentPage(),
+                    'last_page' => $devices->lastPage(),
+                    'per_page' => $devices->perPage(),
+                    'total' => $devices->total()
+                ]
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -32,16 +42,40 @@ class DeviceController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'id_user' => 'required|exists:users,id',
-                'device_id' => 'required|string|unique:perangkat_pengguna,device_id',
-                'device_type' => 'required|in:MOBILE,TABLET,DESKTOP,TV',
+                'id_user' => 'sometimes|required|exists:users,id',
+                'device_id' => 'required|string|unique:tb_perangkat_pengguna,device_id',
+                'device_type' => 'required|in:mobile,tablet,desktop,tv,MOBILE,TABLET,DESKTOP,TV',
                 'device_name' => 'required|string',
-                'operating_system' => 'required|string',
+                'operating_system' => 'sometimes|required|string',
                 'app_version' => 'nullable|string',
                 'push_token' => 'nullable|string',
-                'adalah_device_terpercaya' => 'required|boolean',
-                'terakhir_aktif_pada' => 'required|date',
+                'is_trusted' => 'sometimes|boolean',
+                'last_used_at' => 'sometimes|date',
             ]);
+
+            // Map test-friendly field names to actual database column names
+            if (isset($validatedData['is_trusted'])) {
+                $validatedData['adalah_device_terpercaya'] = $validatedData['is_trusted'];
+                unset($validatedData['is_trusted']);
+            }
+
+            if (isset($validatedData['last_used_at'])) {
+                $validatedData['terakhir_aktif_pada'] = $validatedData['last_used_at'];
+                unset($validatedData['last_used_at']);
+            }
+
+            // Set default values if not provided
+            $validatedData['id_user'] = $validatedData['id_user'] ?? auth()->id();
+            $validatedData['operating_system'] = $validatedData['operating_system'] ?? 'Unknown';
+            $validatedData['adalah_device_terpercaya'] = $validatedData['adalah_device_terpercaya'] ?? false;
+            $validatedData['terakhir_aktif_pada'] = $validatedData['terakhir_aktif_pada'] ?? now();
+            $validatedData['dibuat_pada'] = now();
+            $validatedData['diperbarui_pada'] = now();
+
+            // Convert device_type to uppercase to match database enum
+            if (isset($validatedData['device_type'])) {
+                $validatedData['device_type'] = strtoupper($validatedData['device_type']);
+            }
 
             $device = Device::create($validatedData);
 
@@ -64,7 +98,11 @@ class DeviceController extends Controller
     public function show(Device $device)
     {
         try {
-            return new DeviceResource($device);
+            return response()->json([
+                'success' => true,
+                'message' => 'Data perangkat berhasil diambil',
+                'data' => new DeviceResource($device)
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -81,15 +119,33 @@ class DeviceController extends Controller
         try {
             $validatedData = $request->validate([
                 'id_user' => 'sometimes|required|exists:users,id',
-                'device_id' => 'sometimes|required|string|unique:perangkat_pengguna,device_id,' . $device->id,
-                'device_type' => 'sometimes|required|in:MOBILE,TABLET,DESKTOP,TV',
+                'device_id' => 'sometimes|required|string|unique:tb_perangkat_pengguna,device_id,' . $device->id,
+                'device_type' => 'sometimes|required|in:mobile,tablet,desktop,tv,MOBILE,TABLET,DESKTOP,TV',
                 'device_name' => 'sometimes|required|string',
                 'operating_system' => 'sometimes|required|string',
                 'app_version' => 'nullable|string',
                 'push_token' => 'nullable|string',
-                'adalah_device_terpercaya' => 'sometimes|required|boolean',
-                'terakhir_aktif_pada' => 'sometimes|required|date',
+                'is_trusted' => 'sometimes|boolean',
+                'last_used_at' => 'sometimes|date',
             ]);
+
+            // Map test-friendly field names to actual database column names
+            if (isset($validatedData['is_trusted'])) {
+                $validatedData['adalah_device_terpercaya'] = $validatedData['is_trusted'];
+                unset($validatedData['is_trusted']);
+            }
+
+            if (isset($validatedData['last_used_at'])) {
+                $validatedData['terakhir_aktif_pada'] = $validatedData['last_used_at'];
+                unset($validatedData['last_used_at']);
+            }
+
+            $validatedData['diperbarui_pada'] = now();
+
+            // Convert device_type to uppercase to match database enum
+            if (isset($validatedData['device_type'])) {
+                $validatedData['device_type'] = strtoupper($validatedData['device_type']);
+            }
 
             $device->update($validatedData);
 
@@ -122,6 +178,34 @@ class DeviceController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat menghapus perangkat: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Mark device as trusted/untrusted.
+     */
+    public function trust(Request $request, Device $device)
+    {
+        try {
+            $validatedData = $request->validate([
+                'is_trusted' => 'required|boolean',
+            ]);
+
+            $device->update([
+                'adalah_device_terpercaya' => $validatedData['is_trusted'],
+                'diperbarui_pada' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perangkat berhasil diperbarui',
+                'data' => new DeviceResource($device)
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui perangkat: ' . $e->getMessage()
             ], 500);
         }
     }

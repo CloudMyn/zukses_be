@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamp('kedaluwarsa_pada');
             $table->boolean('telah_digunakan')->default(false);
             $table->integer('jumlah_coba')->default(0);
+            $table->enum('status_verifikasi', ['BELUM_DIPROSES', 'DIPROSES', 'DITERIMA', 'DITOLAK'])->default('BELUM_DIPROSES');
             $table->timestamp('dibuat_pada')->nullable();
             $table->timestamp('diperbarui_pada')->nullable();
 

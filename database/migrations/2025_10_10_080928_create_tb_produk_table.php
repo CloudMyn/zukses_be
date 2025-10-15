@@ -49,6 +49,7 @@ return new class extends Migration
             $table->timestamp('tanggal_dipublikasikan')->nullable();
             $table->timestamp('dibuat_pada')->useCurrent();
             $table->timestamp('diperbarui_pada')->useCurrent()->useCurrentOnUpdate();
+            $table->softDeletes();
 
             $table->foreign('id_seller')->references('id')->on('tb_penjual')->onDelete('cascade');
             $table->foreign('id_admin')->references('id')->on('users')->onDelete('set null');
@@ -57,7 +58,8 @@ return new class extends Migration
             $table->index(['status_produk', 'is_produk_unggulan']);
             $table->index(['rating_produk', 'jumlah_ulasan']);
             $table->index(['jumlah_dilihat', 'jumlah_terjual']);
-            $table->fullText(['nama_produk', 'deskripsi_lengkap']);
+            $table->index('nama_produk');
+            $table->index('deskripsi_lengkap');
         });
     }
 

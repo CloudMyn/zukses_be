@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('meta_description')->nullable();
             $table->timestamp('dibuat_pada')->useCurrent();
             $table->timestamp('diperbarui_pada')->useCurrent()->useCurrentOnUpdate();
+            $table->softDeletes();
 
             $table->foreign('id_kategori_induk')->references('id')->on('tb_kategori_produk')->onDelete('set null');
             $table->index(['level_kategori', 'urutan_tampilan']);
