@@ -59,7 +59,7 @@ return new class extends Migration
             $table->index(['rating_produk', 'jumlah_ulasan']);
             $table->index(['jumlah_dilihat', 'jumlah_terjual']);
             $table->index('nama_produk');
-            $table->index('deskripsi_lengkap');
+            $table->fullText('deskripsi_lengkap');
         });
     }
 

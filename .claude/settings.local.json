@@ -7,7 +7,8 @@
       "Bash(php artisan test:*)",
       "Bash(./vendor/bin/phpunit)",
       "Bash(./vendor/bin/phpunit:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(php artisan migrate:rollback:*)"
     ],
     "deny": [],
     "ask": []
