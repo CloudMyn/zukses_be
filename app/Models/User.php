@@ -31,9 +31,9 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'username',
-        'email',
-        'nomor_telepon',
+        'username', // Required
+        'email', // Optional but if provided must be unique
+        'nomor_telepon', // Optional but if provided must be unique
         'kata_sandi',
         'tipe_user',
         'status',

@@ -46,7 +46,6 @@ class AuthController extends Controller
         try {
             // Validasi input
             $request->validate([
-                'username' => 'required|string|max:255|unique:users',
                 'email' => 'required|string', // Changed from email to string to accept both email and phone
                 'kata_sandi' => 'required|string|min:8|confirmed',
                 'nama_depan' => 'required|string|max:255',
@@ -55,6 +54,15 @@ class AuthController extends Controller
 
             // Tentukan apakah kontak adalah email atau nomor telepon
             $isEmail = filter_var($request->email, FILTER_VALIDATE_EMAIL);
+
+            // Validate that email field contains either valid email or phone number
+            if (empty(trim($request->email))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email atau nomor telepon wajib diisi',
+                    'errors' => ['email' => ['Email atau nomor telepon wajib diisi']]
+                ], 422);
+            }
 
             // Cek apakah email atau nomor telepon sudah digunakan
             if ($isEmail) {
@@ -73,9 +81,12 @@ class AuthController extends Controller
                 }
             }
 
+            // Generate unique username
+            $username = $this->generateUniqueUsername($request->nama_depan);
+
             // Buat pengguna baru
             $user = User::create([
-                'username' => $request->username,
+                'username' => $username,
                 'email' => $isEmail ? $request->email : null,
                 'nomor_telepon' => $isEmail ? null : $request->email, // Jika bukan email, simpan sebagai nomor telepon
                 'kata_sandi' => Hash::make($request->kata_sandi),

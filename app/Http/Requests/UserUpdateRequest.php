@@ -16,6 +16,31 @@ class UserUpdateRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $email = $this->input('email');
+            $nomor_telepon = $this->input('nomor_telepon');
+
+            // Get current user data for comparison
+            $currentUser = $this->route('user');
+            $currentEmail = $currentUser->email;
+            $currentNomorTelepon = $currentUser->nomor_telepon;
+
+            // Validate that at least one of email or nomor_telepon must be provided
+            // If both are being updated to empty, it's not allowed
+            if ((empty($email) || $email === $currentEmail) &&
+                (empty($nomor_telepon) || $nomor_telepon === $currentNomorTelepon) &&
+                empty($currentEmail) &&
+                empty($currentNomorTelepon)) {
+                $validator->errors()->add('contact', 'Email atau nomor telepon wajib diisi salah satu.');
+            }
+        });
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -26,7 +51,7 @@ class UserUpdateRequest extends FormRequest
         
         return [
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($userId)],
-            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($userId)],
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('users')->ignore($userId)],
             'nomor_telepon' => ['nullable', 'string', 'max:20', Rule::unique('users')->ignore($userId)],
             'kata_sandi' => 'nullable|string|min:8|confirmed',
             'tipe_user' => 'required|in:ADMIN,PELANGGAN,PEDAGANG',

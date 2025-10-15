@@ -15,6 +15,22 @@ class UserCreateRequest extends FormRequest
     }
 
     /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $email = $this->input('email');
+            $nomor_telepon = $this->input('nomor_telepon');
+
+            // Validate that either email or nomor_telepon must be provided
+            if (empty($email) && empty($nomor_telepon)) {
+                $validator->errors()->add('contact', 'Email atau nomor telepon wajib diisi salah satu.');
+            }
+        });
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -23,7 +39,7 @@ class UserCreateRequest extends FormRequest
     {
         return [
             'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|email|max:255|unique:users',
+            'email' => 'nullable|email|max:255|unique:users',
             'nomor_telepon' => 'nullable|string|max:20|unique:users',
             'kata_sandi' => 'required|string|min:8|confirmed',
             'tipe_user' => 'required|in:ADMIN,PELANGGAN,PEDAGANG',

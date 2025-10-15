@@ -82,7 +82,7 @@ class UserController extends Controller
         try {
             $validatedData = $request->validate([
                 'username' => 'required|string|unique:users,username',
-                'email' => 'required|email|unique:users,email',
+                'email' => 'nullable|email|unique:users,email',
                 'nomor_telepon' => 'nullable|string|unique:users,nomor_telepon',
                 'kata_sandi' => 'required|string|min:8',
                 'tipe_user' => 'required|in:ADMIN,PELANGGAN,PEDAGANG',
@@ -93,6 +93,15 @@ class UserController extends Controller
                 'tanggal_lahir' => 'nullable|date',
                 'bio' => 'nullable|string|max:500',
             ]);
+
+            // Validate that either email or nomor_telepon must be provided
+            if (empty($validatedData['email']) && empty($validatedData['nomor_telepon'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email atau nomor telepon wajib diisi salah satu',
+                    'errors' => ['contact' => ['Email atau nomor telepon wajib diisi salah satu']]
+                ], 422);
+            }
 
             $validatedData['kata_sandi'] = Hash::make($validatedData['kata_sandi']);
 
@@ -162,8 +171,8 @@ class UserController extends Controller
 
             $validatedData = $request->validate([
                 'username' => 'sometimes|required|string|unique:users,username,' . $user->id,
-                'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
-                'nomor_telepon' => 'nullable|string|unique:users,nomor_telepon,' . $user->id,
+                'email' => 'sometimes|nullable|email|unique:users,email,' . $user->id,
+                'nomor_telepon' => 'sometimes|nullable|string|unique:users,nomor_telepon,' . $user->id,
                 'kata_sandi' => 'sometimes|required|string|min:8',
                 'tipe_user' => 'sometimes|required|in:ADMIN,PELANGGAN,PEDAGANG',
                 'status' => 'sometimes|required|in:AKTIF,TIDAK_AKTIF,DIBLOKIR,SUSPEND',
@@ -173,6 +182,22 @@ class UserController extends Controller
                 'tanggal_lahir' => 'nullable|date',
                 'bio' => 'nullable|string|max:500',
             ]);
+
+            // Get current values for comparison
+            $currentEmail = $user->email;
+            $currentNomorTelepon = $user->nomor_telepon;
+
+            // Validate that at least one of email or nomor_telepon must be provided
+            $newEmail = $validatedData['email'] ?? $currentEmail;
+            $newNomorTelepon = $validatedData['nomor_telepon'] ?? $currentNomorTelepon;
+
+            if (empty($newEmail) && empty($newNomorTelepon)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email atau nomor telepon wajib diisi salah satu',
+                    'errors' => ['contact' => ['Email atau nomor telepon wajib diisi salah satu']]
+                ], 422);
+            }
 
             if (isset($validatedData['kata_sandi'])) {
                 $validatedData['kata_sandi'] = Hash::make($validatedData['kata_sandi']);
