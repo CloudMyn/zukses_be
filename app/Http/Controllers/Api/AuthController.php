@@ -74,14 +74,6 @@ class AuthController extends Controller
                 $nomorTelepon = $contact;
                 $contactType = 'TELEPON';
 
-                // Validasi format nomor telepon (10-15 digit)
-                if (!preg_match('/^\d{10,15}$/', $nomorTelepon)) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Format nomor telepon tidak valid. Gunakan 10-15 digit angka.'
-                    ], 400);
-                }
-
                 // Cek apakah nomor telepon sudah digunakan
                 if (User::where('nomor_telepon', $nomorTelepon)->exists()) {
                     return response()->json([
@@ -295,7 +287,7 @@ class AuthController extends Controller
             // Tentukan apakah kontak adalah email atau nomor telepon
             $isEmail = filter_var($request->contact, FILTER_VALIDATE_EMAIL);
             $verificationType = $isEmail ? 'EMAIL' : 'TELEPON';
-            
+
             // Dapatkan tipe OTP (default: another)
             $otpType = $request->type ?? 'another';
 
