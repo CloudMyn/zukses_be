@@ -287,16 +287,39 @@ class AuthController extends Controller
     public function sendOtp(Request $request): JsonResponse
     {
         $request->validate([
-            'contact' => 'required|string'
+            'contact' => 'required|string',
+            'type' => 'nullable|in:registration,login,another'
         ]);
 
         try {
             // Tentukan apakah kontak adalah email atau nomor telepon
             $isEmail = filter_var($request->contact, FILTER_VALIDATE_EMAIL);
             $verificationType = $isEmail ? 'EMAIL' : 'TELEPON';
+            
+            // Dapatkan tipe OTP (default: another)
+            $otpType = $request->type ?? 'another';
 
-            // Cek apakah pengguna sudah terdaftar (jika ini untuk login)
+            // Cek apakah pengguna sudah terdaftar
             $user = $isEmail ? User::where('email', $request->contact)->first() : User::where('nomor_telepon', $request->contact)->first();
+
+            // Validasi berdasarkan tipe OTP
+            if ($otpType === 'registration') {
+                // Untuk registrasi, pastikan kontak belum terdaftar
+                if ($user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $isEmail ? 'Email sudah terdaftar' : 'Nomor telepon sudah terdaftar'
+                    ], 400);
+                }
+            } elseif ($otpType === 'login') {
+                // Untuk login, pastikan pengguna sudah terdaftar
+                if (!$user) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Akun tidak ditemukan'
+                    ], 404);
+                }
+            }
 
             $nilai_verifikasi = $request->contact;
 
@@ -345,7 +368,8 @@ class AuthController extends Controller
                 'data' => [
                     'verification_id' => $verification->id,
                     'expires_at' => $verification->kedaluwarsa_pada,
-                    'verification_type' => $verificationType
+                    'verification_type' => $verificationType,
+                    'otp_type' => $otpType
                 ]
             ], 200);
         } catch (\Exception $e) {
