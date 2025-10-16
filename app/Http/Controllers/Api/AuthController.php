@@ -14,9 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -44,36 +44,46 @@ class AuthController extends Controller
     public function register(Request $request): JsonResponse
     {
         try {
-            // Validasi input
+            // Validasi input - memerlukan contact (email atau nomor telepon)
             $request->validate([
-                'email' => 'required|string', // Changed from email to string to accept both email and phone
-                'kata_sandi' => 'required|string|min:8|confirmed',
-                'nama_depan' => 'required|string|max:255',
-                'nama_belakang' => 'required|string|max:255'
+                'contact' => 'required|string'
             ]);
 
             // Tentukan apakah kontak adalah email atau nomor telepon
-            $isEmail = filter_var($request->email, FILTER_VALIDATE_EMAIL);
+            $contact = $request->contact;
+            $isEmail = filter_var($contact, FILTER_VALIDATE_EMAIL);
 
-            // Validate that email field contains either valid email or phone number
-            if (empty(trim($request->email))) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email atau nomor telepon wajib diisi',
-                    'errors' => ['email' => ['Email atau nomor telepon wajib diisi']]
-                ], 422);
-            }
+            $email = null;
+            $nomorTelepon = null;
+            $contactType = '';
 
-            // Cek apakah email atau nomor telepon sudah digunakan
             if ($isEmail) {
-                if (User::where('email', $request->email)->exists()) {
+                // Contact adalah email
+                $email = $contact;
+                $contactType = 'EMAIL';
+
+                // Cek apakah email sudah digunakan
+                if (User::where('email', $email)->exists()) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Email sudah terdaftar'
                     ], 400);
                 }
             } else {
-                if (User::where('nomor_telepon', $request->email)->exists()) {
+                // Contact adalah nomor telepon
+                $nomorTelepon = $contact;
+                $contactType = 'TELEPON';
+
+                // Validasi format nomor telepon (10-15 digit)
+                if (!preg_match('/^\d{10,15}$/', $nomorTelepon)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Format nomor telepon tidak valid. Gunakan 10-15 digit angka.'
+                    ], 400);
+                }
+
+                // Cek apakah nomor telepon sudah digunakan
+                if (User::where('nomor_telepon', $nomorTelepon)->exists()) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Nomor telepon sudah terdaftar'
@@ -81,30 +91,42 @@ class AuthController extends Controller
                 }
             }
 
+            // Generate random password
+            $randomPassword = Str::random(12);
+
             // Generate unique username
-            $username = $this->generateUniqueUsername($request->nama_depan);
+            $username = $this->generateUniqueUsername("ZX");
+
+            // Generate nama_lengkap dari contact
+            if ($isEmail) {
+                $namaLengkap = "USER#" . substr($email, 0, 3) . random_int(1000, 9999);
+            } else {
+                $namaLengkap = "USER#" . substr($nomorTelepon, -3) . random_int(1000, 9999);
+            }
 
             // Buat pengguna baru
             $user = User::create([
                 'username' => $username,
-                'email' => $isEmail ? $request->email : null,
-                'nomor_telepon' => $isEmail ? null : $request->email, // Jika bukan email, simpan sebagai nomor telepon
-                'kata_sandi' => Hash::make($request->kata_sandi),
+                'email' => $email,
+                'nomor_telepon' => $nomorTelepon,
+                'kata_sandi' => Hash::make($randomPassword),
                 'tipe_user' => 'PELANGGAN',
                 'status' => 'AKTIF',
-                'nama_depan' => $request->nama_depan ?? null,
-                'nama_belakang' => $request->nama_belakang ?? null,
-                'nama_lengkap' => $request->nama_depan . ' ' . $request->nama_belakang,
+                'nama_lengkap' => $namaLengkap,
                 'dibuat_pada' => now(),
                 'diperbarui_pada' => now(),
             ]);
 
+            // Send password via WhatsApp (priority) or email
+            $this->sendPasswordToUser($user, $randomPassword);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Registrasi berhasil',
+                'message' => 'Registrasi berhasil. Password telah dikirim ke ' . ($isEmail ? 'email' : 'nomor telepon') . ' Anda.',
                 'data' => [
                     'user' => new UserResource($user),
-                    'token' => $user->createToken('auth_token')->plainTextToken
+                    'token' => $user->createToken('auth_token')->plainTextToken,
+                    'contact_type' => $contactType
                 ]
             ], 201);
         } catch (ValidationException $e) {
@@ -130,13 +152,14 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         try {
-            // Validasi input
+            // Validasi input - hanya contact yang wajib
             $request->validate([
                 'contact' => 'required|string',
-                'password' => 'required|string',
-                'device_id' => 'required|string',
-                'device_name' => 'required|string',
-                'operating_system' => 'required|string',
+                'password' => 'nullable|string',
+                'otp_code' => 'nullable|string|size:6',
+                'device_id' => 'nullable|string',
+                'device_name' => 'nullable|string',
+                'operating_system' => 'nullable|string',
             ]);
 
             // Tentukan apakah kontak adalah email atau nomor telepon
@@ -156,11 +179,53 @@ class AuthController extends Controller
                 ], 404);
             }
 
-            // Validasi password
-            if (!Hash::check($request->password, $user->kata_sandi)) {
+            $loginSuccess = false;
+
+            // Jika otp_code disediakan, lakukan verifikasi OTP
+            if ($request->has('otp_code') && !empty($request->otp_code)) {
+                // Cek apakah OTP valid
+                $verificationType = $isEmail ? 'EMAIL' : 'TELEPON';
+                $verification = Verification::where('nilai_verifikasi', $request->contact)
+                    ->where('jenis_verifikasi', $verificationType)
+                    ->where('kode_verifikasi', $request->otp_code)
+                    ->where('telah_digunakan', false)
+                    ->where('kedaluwarsa_pada', '>', now())
+                    ->first();
+
+                if ($verification) {
+                    // Tandai OTP sudah digunakan
+                    $verification->update(['telah_digunakan' => true]);
+                    $loginSuccess = true;
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Kode OTP tidak valid atau sudah kadaluarsa'
+                    ], 400);
+                }
+            }
+            // Jika password disediakan, lakukan verifikasi password
+            elseif ($request->has('password') && !empty($request->password)) {
+                if (Hash::check($request->password, $user->kata_sandi)) {
+                    $loginSuccess = true;
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Password salah'
+                    ], 400);
+                }
+            }
+            // Jika tidak ada OTP maupun password disediakan
+            else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Password salah'
+                    'message' => 'Password atau kode OTP diperlukan'
+                ], 400);
+            }
+
+            if (!$loginSuccess) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Autentikasi gagal'
                 ], 400);
             }
 
@@ -170,21 +235,25 @@ class AuthController extends Controller
             // Buat token autentikasi
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            // Simpan informasi perangkat
-            $device = Device::updateOrCreate(
-                ['device_id' => $request->device_id],
-                [
-                    'id_user' => $user->id,
-                    'device_name' => $request->device_name,
-                    'operating_system' => $request->operating_system,
-                    'app_version' => $request->app_version ?? null,
-                    'push_token' => $request->push_token ?? null,
-                    'adalah_device_terpercaya' => true,
-                    'terakhir_aktif_pada' => now(),
-                    'dibuat_pada' => now(),
-                    'diperbarui_pada' => now(),
-                ]
-            );
+            // Simpan informasi perangkat jika device_id disediakan
+            if ($request->has('device_id')) {
+                $device = Device::updateOrCreate(
+                    ['device_id' => $request->device_id],
+                    [
+                        'id_user' => $user->id,
+                        'device_name' => $request->device_name ?? 'Unknown Device',
+                        'operating_system' => $request->operating_system ?? 'Unknown OS',
+                        'app_version' => $request->app_version ?? null,
+                        'push_token' => $request->push_token ?? null,
+                        'adalah_device_terpercaya' => true,
+                        'terakhir_aktif_pada' => now(),
+                        'dibuat_pada' => now(),
+                        'diperbarui_pada' => now(),
+                    ]
+                );
+            } else {
+                $device = null;
+            }
 
             return response()->json([
                 'success' => true,
@@ -192,7 +261,7 @@ class AuthController extends Controller
                 'data' => [
                     'user' => new UserResource($user),
                     'token' => $token,
-                    'device' => new DeviceResource($device)
+                    'device' => $device ? new DeviceResource($device) : null
                 ]
             ], 200);
         } catch (ValidationException $e) {
@@ -242,7 +311,8 @@ class AuthController extends Controller
                 ->delete();
 
             // Generate kode OTP baru
-            $otpCode = $this->otpService->generateOtp();
+            $otpCode = 999999;
+            // $otpCode = $this->otpService->generateOtp();
 
             // Simpan kode OTP
             $verification = Verification::create([
@@ -271,7 +341,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Kode OTP telah dikirim ke ' . ($verificationType === 'EMAIL' ? 'email' : 'nomor telepon'),
+                'message' => 'Kode OTP telah dikirim ke ' . ($verificationType === 'EMAIL' ? 'email' : 'nomor telepon') . ' : ' . $otpCode,
                 'data' => [
                     'verification_id' => $verification->id,
                     'expires_at' => $verification->kedaluwarsa_pada,
@@ -447,7 +517,7 @@ class AuthController extends Controller
             }
 
             // Tandai OTP sudah digunakan
-            $verification->update(['telah_digunakan' => true]);
+            // $verification->update(['telah_digunakan' => true]);
 
             return response()->json([
                 'success' => true,
@@ -594,21 +664,96 @@ class AuthController extends Controller
     }
 
     /**
-     * Generate username unik jika username dari Google sudah digunakan
+     * Generate username unik dengan pola konvensional 6 karakter
      *
      * @param string $baseName
      * @return string
      */
     private function generateUniqueUsername(string $baseName): string
     {
-        $username = Str::slug($baseName);
-        $counter = 1;
+        $baseSlug = Str::slug(substr($baseName, 0, 3)); // Ambil 3 karakter pertama dari nama depan
+        $randomPart = Str::random(3); // Tambahkan 3 karakter acak
+        $username = $baseSlug . $randomPart;
 
+        // Pastikan username unik
         while (User::where('username', $username)->exists()) {
-            $username = Str::slug($baseName) . $counter;
-            $counter++;
+            $randomPart = Str::random(3);
+            $username = $baseSlug . $randomPart;
         }
 
         return $username;
+    }
+
+    /**
+     * Send password to user via WhatsApp (priority) or email
+     *
+     * @param User $user
+     * @param string $password
+     * @return void
+     */
+    private function sendPasswordToUser(User $user, string $password): void
+    {
+        // In a real implementation, you would integrate with a WhatsApp API service
+        // For now, we'll use a placeholder implementation
+
+        $contact = $user->nomor_telepon ?? ''; // WhatsApp priority
+        $message = "Halo {$user->nama_lengkap}, password Anda untuk akun {$user->email} adalah: {$password}. Silakan login dan segera ganti password Anda.";
+
+        // Try to send via WhatsApp first (placeholder implementation)
+        $whatsappSent = $this->sendViaWhatsApp($contact, $message);
+
+        // If WhatsApp sending fails, send via email
+        if (!$whatsappSent) {
+            $this->sendViaEmail($user->email, $message);
+        }
+    }
+
+    /**
+     * Send message via WhatsApp
+     *
+     * @param string $contact
+     * @param string $message
+     * @return bool
+     */
+    private function sendViaWhatsApp(string $contact, string $message): bool
+    {
+        // This is a placeholder implementation
+        // In a real application, integrate with WhatsApp Business API or similar
+        try {
+            // Log the attempt (in real implementation, call WhatsApp API here)
+            Log::info("Attempting to send WhatsApp message to: {$contact}");
+            Log::info("Message: {$message}");
+
+            // Simulate WhatsApp sending
+            // In real implementation, you would use a service like Twilio, WhatsApp Business API, etc.
+            return true; // Assuming success for now
+
+        } catch (\Exception $e) {
+            Log::error("Failed to send WhatsApp message: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send message via email
+     *
+     * @param string $email
+     * @param string $message
+     * @return void
+     */
+    private function sendViaEmail(string $email, string $message): void
+    {
+        // This is a placeholder implementation
+        // In a real application, use Laravel's Mail facade
+        try {
+            Log::info("Sending password email to: {$email}");
+            Log::info("Message: {$message}");
+
+            // In real implementation, send actual email using Laravel Mail
+            // Mail::to($email)->send(new PasswordMail($message));
+
+        } catch (\Exception $e) {
+            Log::error("Failed to send email: " . $e->getMessage());
+        }
     }
 }

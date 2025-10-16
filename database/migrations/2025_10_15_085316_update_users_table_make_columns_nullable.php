@@ -12,15 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Make email nullable (keep unique constraint)
-            $table->string('email')->nullable()->unique()->change();
+            // Make email nullable (the unique constraint already exists)
+            $table->string('email')->nullable()->change();
 
-            // Make nomor_telepon nullable but remove unique constraint first
-            $table->dropUnique('users_nomor_telepon_unique');
+            // Make nomor_telepon nullable (the unique constraint already exists)
             $table->string('nomor_telepon')->nullable()->change();
-
-            // Add unique constraint back for non-null values
-            $table->unique('nomor_telepon');
         });
     }
 
