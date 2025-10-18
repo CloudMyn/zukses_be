@@ -34,7 +34,7 @@ class ChatMessageController extends Controller
             $validatedData = $request->validate([
                 'percakapan_id' => 'required|exists:chat_percakapan,id',
                 'pengirim_user_id' => 'nullable|exists:users,id',
-                'pengirim_shop_profile_id' => 'nullable|exists:penjual,id',
+                'pengirim_shop_profile_id' => 'nullable|exists:tb_penjual,id',
                 'konten' => 'required|string|max:1000',
                 'tipe_konten' => 'required|in:TEXT,IMAGE,VIDEO,AUDIO,DOCUMENT,LOCATION,CONTACT,SYSTEM',
                 'metadata' => 'nullable|json',
@@ -84,7 +84,7 @@ class ChatMessageController extends Controller
             $validatedData = $request->validate([
                 'percakapan_id' => 'sometimes|required|exists:chat_percakapan,id',
                 'pengirim_user_id' => 'nullable|exists:users,id',
-                'pengirim_shop_profile_id' => 'nullable|exists:penjual,id',
+                'pengirim_shop_profile_id' => 'nullable|exists:tb_penjual,id',
                 'konten' => 'sometimes|required|string|max:1000',
                 'tipe_konten' => 'sometimes|required|in:TEXT,IMAGE,VIDEO,AUDIO,DOCUMENT,LOCATION,CONTACT,SYSTEM',
                 'metadata' => 'nullable|json',

@@ -23,7 +23,7 @@ class CartUpdateRequest extends FormRequest
         return [
             'id_user' => 'sometimes|required|exists:users,id',
             'session_id' => 'nullable|string|max:255',
-            'id_seller' => 'sometimes|required|exists:penjual,id',
+            'id_seller' => 'sometimes|required|exists:tb_penjual,id',
             'total_items' => 'sometimes|required|integer|min:0',
             'total_berat' => 'sometimes|required|numeric|min:0',
             'total_harga' => 'sometimes|required|numeric|min:0',

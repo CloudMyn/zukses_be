@@ -32,7 +32,7 @@ class SellerReportController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'id_seller' => 'required|exists:penjual,id',
+                'id_seller' => 'required|exists:tb_penjual,id',
                 'tipe_laporan' => 'required|in:HARIAN,MINGGUAN,BULANAN,TAHUNAN',
                 'periode_laporan' => 'required|date',
                 'total_pesanan' => 'required|integer|min:0',
@@ -84,7 +84,7 @@ class SellerReportController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'id_seller' => 'sometimes|required|exists:penjual,id',
+                'id_seller' => 'sometimes|required|exists:tb_penjual,id',
                 'tipe_laporan' => 'sometimes|required|in:HARIAN,MINGGUAN,BULANAN,TAHUNAN',
                 'periode_laporan' => 'sometimes|required|date',
                 'total_pesanan' => 'sometimes|required|integer|min:0',

@@ -22,7 +22,7 @@ class SellerReportCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_penjual' => 'required|exists:penjual,id',
+            'id_penjual' => 'required|exists:tb_penjual,id',
             'id_admin' => 'required|exists:users,id',
             'jenis_laporan' => 'required|in:PENJUALAN,PRODUK,PERFORMANCE,KEUANGAN',
             'periode_awal' => 'required|date',

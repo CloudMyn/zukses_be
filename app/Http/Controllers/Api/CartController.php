@@ -34,7 +34,7 @@ class CartController extends Controller
             $validatedData = $request->validate([
                 'id_user' => 'nullable|exists:users,id',
                 'session_id' => 'nullable|string|max:255',
-                'id_seller' => 'required|exists:penjual,id',
+                'id_seller' => 'required|exists:tb_penjual,id',
                 'total_items' => 'required|integer|min:0',
                 'total_berat' => 'required|numeric|min:0',
                 'total_harga' => 'required|numeric|min:0',
@@ -82,7 +82,7 @@ class CartController extends Controller
             $validatedData = $request->validate([
                 'id_user' => 'sometimes|nullable|exists:users,id',
                 'session_id' => 'nullable|string|max:255',
-                'id_seller' => 'sometimes|required|exists:penjual,id',
+                'id_seller' => 'sometimes|required|exists:tb_penjual,id',
                 'total_items' => 'sometimes|required|integer|min:0',
                 'total_berat' => 'sometimes|required|numeric|min:0',
                 'total_harga' => 'sometimes|required|numeric|min:0',

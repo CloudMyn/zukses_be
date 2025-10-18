@@ -20,7 +20,7 @@ class ProductCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_seller' => 'required|exists:penjual,id',
+            'id_seller' => 'required|exists:tb_penjual,id',
             'id_admin' => 'nullable|exists:users,id',
             'sku' => 'required|string|unique:tb_produk,sku|max:255',
             'nama_produk' => 'required|string|max:500',

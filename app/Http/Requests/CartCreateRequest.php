@@ -22,7 +22,7 @@ class CartCreateRequest extends FormRequest
         return [
             'id_user' => 'required|exists:users,id',
             'session_id' => 'nullable|string|max:255',
-            'id_seller' => 'required|exists:penjual,id',
+            'id_seller' => 'required|exists:tb_penjual,id',
             'total_items' => 'required|integer|min:0',
             'total_berat' => 'required|numeric|min:0',
             'total_harga' => 'required|numeric|min:0',

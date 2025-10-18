@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Http\Resources\ProductResource;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -32,7 +33,7 @@ class ProductController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'id_seller' => 'required|exists:penjual,id',
+                'id_seller' => 'required|exists:tb_penjual,id',
                 'id_admin' => 'nullable|exists:users,id',
                 'sku' => 'required|string|unique:tb_produk,sku',
                 'nama_produk' => 'required|string',
@@ -66,7 +67,13 @@ class ProductController extends Controller
                 'message' => 'Produk berhasil dibuat',
                 'data' => new ProductResource($product)
             ], 201);
-        } catch (\Exception $e) {
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal : ' . $e->getMessage(),
+                'validation_errors' => $e->errors()
+            ], 500);
+        }catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan saat membuat produk: ' . $e->getMessage()
@@ -96,7 +103,7 @@ class ProductController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'id_seller' => 'sometimes|required|exists:penjual,id',
+                'id_seller' => 'sometimes|required|exists:tb_penjual,id',
                 'id_admin' => 'nullable|exists:users,id',
                 'sku' => 'sometimes|required|string|unique:tb_produk,sku,' . $product->id,
                 'nama_produk' => 'sometimes|required|string',

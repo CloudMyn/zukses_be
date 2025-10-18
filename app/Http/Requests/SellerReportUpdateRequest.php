@@ -24,7 +24,7 @@ class SellerReportUpdateRequest extends FormRequest
         $id = $this->route('sellerReport'); // Get the sellerReport ID from the route
 
         return [
-            'id_penjual' => 'sometimes|required|exists:penjual,id',
+            'id_penjual' => 'sometimes|required|exists:tb_penjual,id',
             'id_admin' => 'sometimes|required|exists:users,id',
             'jenis_laporan' => 'sometimes|required|in:PENJUALAN,PRODUK,PERFORMANCE,KEUANGAN',
             'periode_awal' => 'sometimes|required|date',

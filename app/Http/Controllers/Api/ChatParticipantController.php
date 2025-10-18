@@ -34,7 +34,7 @@ class ChatParticipantController extends Controller
             $validatedData = $request->validate([
                 'percakapan_id' => 'required|exists:chat_percakapan,id',
                 'user_id' => 'nullable|exists:users,id',
-                'shop_profile_id' => 'nullable|exists:penjual,id',
+                'shop_profile_id' => 'nullable|exists:tb_penjual,id',
                 'role' => 'required|in:PARTICIPANT,ADMIN,AGENT,OWNER',
                 'bergabung_pada' => 'nullable|date',
                 'keluar_pada' => 'nullable|date',
@@ -87,7 +87,7 @@ class ChatParticipantController extends Controller
             $validatedData = $request->validate([
                 'percakapan_id' => 'sometimes|required|exists:chat_percakapan,id',
                 'user_id' => 'nullable|exists:users,id',
-                'shop_profile_id' => 'nullable|exists:penjual,id',
+                'shop_profile_id' => 'nullable|exists:tb_penjual,id',
                 'role' => 'sometimes|required|in:PARTICIPANT,ADMIN,AGENT,OWNER',
                 'bergabung_pada' => 'nullable|date',
                 'keluar_pada' => 'nullable|date',

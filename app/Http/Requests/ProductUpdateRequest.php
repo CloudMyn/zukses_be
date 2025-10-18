@@ -21,7 +21,7 @@ class ProductUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_seller' => 'sometimes|required|exists:penjual,id',
+            'id_seller' => 'sometimes|required|exists:tb_penjual,id',
             'id_admin' => 'nullable|exists:users,id',
             'sku' => [
                 'sometimes',

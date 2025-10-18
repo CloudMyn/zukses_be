@@ -20,7 +20,7 @@ class SellerShippingMethodCreateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_seller' => 'required|exists:penjual,id',
+            'id_seller' => 'required|exists:tb_penjual,id',
             'id_metode_pengiriman' => 'required|exists:metode_pengiriman,id',
             'is_aktif' => 'boolean',
             'biaya_tambahan' => 'required|numeric|min:0',

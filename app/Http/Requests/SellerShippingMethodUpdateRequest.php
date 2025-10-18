@@ -21,7 +21,7 @@ class SellerShippingMethodUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'id_seller' => 'sometimes|required|exists:penjual,id',
+            'id_seller' => 'sometimes|required|exists:tb_penjual,id',
             'id_metode_pengiriman' => [
                 'sometimes',
                 'required',

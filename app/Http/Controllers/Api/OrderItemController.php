@@ -33,7 +33,7 @@ class OrderItemController extends Controller
         try {
             $validatedData = $request->validate([
                 'id_pesanan' => 'required|exists:pesanan,id',
-                'id_seller' => 'required|exists:penjual,id',
+                'id_seller' => 'required|exists:tb_penjual,id',
                 'id_produk' => 'required|exists:tb_produk,id',
                 'id_harga_varian' => 'nullable|exists:harga_varian_produk,id',
                 'nama_produk' => 'required|string|max:255',
@@ -87,7 +87,7 @@ class OrderItemController extends Controller
         try {
             $validatedData = $request->validate([
                 'id_pesanan' => 'sometimes|required|exists:pesanan,id',
-                'id_seller' => 'sometimes|required|exists:penjual,id',
+                'id_seller' => 'sometimes|required|exists:tb_penjual,id',
                 'id_produk' => 'sometimes|required|exists:tb_produk,id',
                 'id_harga_varian' => 'nullable|exists:harga_varian_produk,id',
                 'nama_produk' => 'sometimes|required|string|max:255',
