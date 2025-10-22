@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * Controller untuk manajemen autentikasi pengguna dan OTP
@@ -112,12 +113,17 @@ class AuthController extends Controller
             // Send password via WhatsApp (priority) or email
             $this->sendPasswordToUser($user, $randomPassword);
 
+            // Generate JWT token
+            $token = JWTAuth::fromUser($user);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registrasi berhasil. Password telah dikirim ke ' . ($isEmail ? 'email' : 'nomor telepon') . ' Anda.',
                 'data' => [
                     'user' => new UserResource($user),
-                    'token' => $user->createToken('auth_token')->plainTextToken,
+                    'token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => config('jwt.ttl') * 60,
                     'contact_type' => $contactType
                 ]
             ], 201);
@@ -224,8 +230,8 @@ class AuthController extends Controller
             // Perbarui status login terakhir
             $user->update(['terakhir_login_pada' => now()]);
 
-            // Buat token autentikasi
-            $token = $user->createToken('auth_token')->plainTextToken;
+            // Buat token JWT
+            $token = JWTAuth::fromUser($user);
 
             // Simpan informasi perangkat jika device_id disediakan
             if ($request->has('device_id')) {
@@ -253,6 +259,8 @@ class AuthController extends Controller
                 'data' => [
                     'user' => new UserResource($user),
                     'token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => config('jwt.ttl') * 60,
                     'device' => $device ? new DeviceResource($device) : null
                 ]
             ], 200);
@@ -383,7 +391,8 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         try {
-            $request->user()->currentAccessToken()->delete();
+            // Invalidate JWT token
+            JWTAuth::invalidate(JWTAuth::getToken());
 
             return response()->json([
                 'success' => true,
@@ -572,8 +581,7 @@ class AuthController extends Controller
                 'diperbarui_pada' => now(),
             ]);
 
-            // Hapus semua token Sanctum agar pengguna harus login ulang
-            $user->tokens()->delete();
+            // JWT tokens are stateless, no need to delete from database
 
             return response()->json([
                 'success' => true,
@@ -639,8 +647,8 @@ class AuthController extends Controller
                 ]);
             }
 
-            // Buat token autentikasi
-            $token = $user->createToken('google_auth_token')->plainTextToken;
+            // Buat token JWT
+            $token = JWTAuth::fromUser($user);
 
             // Simpan informasi perangkat jika disediakan
             if ($request->has('device_id')) {
@@ -668,6 +676,8 @@ class AuthController extends Controller
                 'data' => [
                     'user' => new UserResource($user),
                     'token' => $token,
+                    'token_type' => 'bearer',
+                    'expires_in' => config('jwt.ttl') * 60,
                     'device' => $device ? new DeviceResource($device) : null
                 ]
             ], 200);

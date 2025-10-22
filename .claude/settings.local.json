@@ -8,7 +8,14 @@
       "Bash(./vendor/bin/phpunit)",
       "Bash(./vendor/bin/phpunit:*)",
       "Bash(find:*)",
-      "Bash(php artisan migrate:rollback:*)"
+      "Bash(php artisan migrate:rollback:*)",
+      "Bash(composer require:*)",
+      "Bash(php artisan vendor:publish:*)",
+      "Bash(php artisan:*)",
+      "Bash(composer dump-autoload:*)",
+      "Bash(curl:*)",
+      "Read(//d/NAT/project/zukses/**)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
