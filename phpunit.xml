@@ -20,6 +20,8 @@
     <php>
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="APP_KEY" value="base64:1/V3vsMm7u1Us6ikg3nYEYlas81MFI2QuR80YuRtZhU="/>
+        <env name="APP_DEBUG" value="true"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
         <!-- Use SQLite in-memory for testing -->
@@ -30,5 +32,17 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+
+        <!-- JWT Configuration for Testing -->
+        <env name="JWT_SECRET" value="test_jwt_secret_for_testing_only"/>
+        <env name="JWT_TTL" value="60"/>
+        <env name="JWT_REFRESH_TTL" value="20160"/>
+        <env name="JWT_ALGORITHM" value="HS256"/>
+
+        <!-- External Services Mock for Testing -->
+        <env name="FONNTE_AUTH_TOKEN" value="test_fonnte_token"/>
+        <env name="GOOGLE_CLIENT_ID" value="test_google_client_id"/>
+        <env name="GOOGLE_CLIENT_SECRET" value="test_google_client_secret"/>
+        <env name="GOOGLE_CALLBACK_URL" value="http://localhost/api/auth/google/callback"/>
     </php>
 </phpunit>

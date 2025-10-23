@@ -62,8 +62,9 @@ class SellerControllerTest extends TestCase
      */
     public function test_create_seller_profile(): void
     {
-        $user = User::factory()->create(['tipe_user' => 'PEDAGANG']);
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'PEDAGANG']);
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -128,9 +129,10 @@ class SellerControllerTest extends TestCase
      */
     public function test_update_seller_profile(): void
     {
-        $user = User::factory()->create(['tipe_user' => 'PEDAGANG']);
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'PEDAGANG']);
+        $user = $auth['user'];
         $seller = Seller::factory()->create(['id_user' => $user->id]);
-        $token = $user->createToken('test-token')->plainTextToken;
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -161,9 +163,10 @@ class SellerControllerTest extends TestCase
      */
     public function test_delete_seller_profile(): void
     {
-        $user = User::factory()->create(['tipe_user' => 'PEDAGANG']);
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'PEDAGANG']);
+        $user = $auth['user'];
         $seller = Seller::factory()->create(['id_user' => $user->id]);
-        $token = $user->createToken('test-token')->plainTextToken;
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,

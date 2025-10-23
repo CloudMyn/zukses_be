@@ -40,7 +40,8 @@ class ActualAuthControllerTest extends TestCase
         // Should return validation errors for actual required fields
         $response->assertStatus(422)
                  ->assertJson([
-                     'message' => 'The contact field is required. (and 4 more errors)'
+                     'success' => false,
+                     'message' => 'Validasi gagal'
                  ]);
     }
 }

@@ -16,8 +16,9 @@ class DeviceControllerTest extends TestCase
      */
     public function test_list_user_devices(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         // Create some devices for the user
         Device::factory()->count(3)->create(['id_user' => $user->id]);
@@ -57,8 +58,9 @@ class DeviceControllerTest extends TestCase
      */
     public function test_register_new_device(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -91,8 +93,9 @@ class DeviceControllerTest extends TestCase
      */
     public function test_update_device_info(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
         
         $device = Device::factory()->create(['id_user' => $user->id]);
 
@@ -126,8 +129,9 @@ class DeviceControllerTest extends TestCase
      */
     public function test_remove_device(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
         
         $device = Device::factory()->create(['id_user' => $user->id]);
 
@@ -147,8 +151,9 @@ class DeviceControllerTest extends TestCase
      */
     public function test_mark_device_as_trusted(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
         
         $device = Device::factory()->create(['id_user' => $user->id, 'is_trusted' => false]);
 

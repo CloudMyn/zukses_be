@@ -16,8 +16,8 @@ class UserControllerTest extends TestCase
     public function test_list_all_users_as_admin(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         // Create some additional users
         User::factory()->count(5)->create();
@@ -57,8 +57,8 @@ class UserControllerTest extends TestCase
     public function test_list_users_as_regular_user_is_forbidden(): void
     {
         // Create a regular user and authenticate
-        $user = User::factory()->create(['tipe_user' => 'PELANGGAN']);
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'PELANGGAN']);
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -73,8 +73,8 @@ class UserControllerTest extends TestCase
     public function test_users_pagination(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         // Create more users than the default page size
         User::factory()->count(25)->create();
@@ -104,8 +104,8 @@ class UserControllerTest extends TestCase
     public function test_users_search_functionality(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         // Create users with specific names for searching
         User::factory()->create(['username' => 'john_doe']);
@@ -133,8 +133,8 @@ class UserControllerTest extends TestCase
     public function test_users_filter_by_status(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         // Create users with different statuses
         User::factory()->create(['status' => 'AKTIF']);
@@ -159,8 +159,8 @@ class UserControllerTest extends TestCase
     public function test_create_user_with_valid_data(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -195,8 +195,8 @@ class UserControllerTest extends TestCase
     public function test_create_user_with_duplicate_email(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         // Create a user first
         $existingUser = User::factory()->create(['email' => 'existing@example.com']);
@@ -228,8 +228,8 @@ class UserControllerTest extends TestCase
     public function test_create_user_with_invalid_data(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -257,8 +257,8 @@ class UserControllerTest extends TestCase
     public function test_create_user_with_missing_required_fields(): void
     {
         // Create an admin user and authenticate
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -280,8 +280,9 @@ class UserControllerTest extends TestCase
      */
     public function test_get_own_profile(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -311,7 +312,8 @@ class UserControllerTest extends TestCase
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         
-        $token = $user1->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser($user1->toArray());
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -337,8 +339,8 @@ class UserControllerTest extends TestCase
      */
     public function test_get_non_existent_user(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -356,8 +358,9 @@ class UserControllerTest extends TestCase
      */
     public function test_update_own_profile(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -389,8 +392,8 @@ class UserControllerTest extends TestCase
     public function test_update_other_user_profile_as_admin(): void
     {
         // Create admin user
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $adminToken = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $adminToken = $auth['token'];
 
         // Create another user to update
         $user = User::factory()->create(['username' => 'original_username']);
@@ -424,8 +427,9 @@ class UserControllerTest extends TestCase
      */
     public function test_update_with_invalid_data(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -447,8 +451,9 @@ class UserControllerTest extends TestCase
      */
     public function test_delete_own_account(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -467,8 +472,8 @@ class UserControllerTest extends TestCase
     public function test_delete_user_as_admin(): void
     {
         // Create admin user
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $adminToken = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $adminToken = $auth['token'];
 
         // Create another user to delete
         $user = User::factory()->create();
@@ -489,8 +494,8 @@ class UserControllerTest extends TestCase
      */
     public function test_delete_non_existent_user(): void
     {
-        $admin = User::factory()->create(['tipe_user' => 'ADMIN']);
-        $token = $admin->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser(['tipe_user' => 'ADMIN']);
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,

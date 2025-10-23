@@ -16,8 +16,9 @@ class VerificationControllerTest extends TestCase
      */
     public function test_list_verification_attempts(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         // Create some verification attempts for the user
         Verification::factory()->count(3)->create(['id_user' => $user->id]);
@@ -57,8 +58,9 @@ class VerificationControllerTest extends TestCase
      */
     public function test_create_verification_request(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
@@ -90,8 +92,9 @@ class VerificationControllerTest extends TestCase
      */
     public function test_update_verification_status(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
         
         $verification = Verification::factory()->create([
             'id_user' => $user->id,
@@ -127,8 +130,9 @@ class VerificationControllerTest extends TestCase
      */
     public function test_get_verification_details(): void
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('test-token')->plainTextToken;
+        $auth = $this->createAuthenticatedUser();
+        $user = $auth['user'];
+        $token = $auth['token'];
         
         $verification = Verification::factory()->create(['id_user' => $user->id]);
 

@@ -59,7 +59,13 @@ return new class extends Migration
             $table->index(['rating_produk', 'jumlah_ulasan']);
             $table->index(['jumlah_dilihat', 'jumlah_terjual']);
             $table->index('nama_produk');
-            $table->fullText('deskripsi_lengkap');
+            // Only add fullText index if not using SQLite (testing environment)
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText('deskripsi_lengkap');
+            } else {
+                // Use regular index for SQLite
+                $table->index('deskripsi_lengkap');
+            }
         });
     }
 

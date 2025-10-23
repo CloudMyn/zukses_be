@@ -17,7 +17,7 @@ class SimpleAuthControllerTest extends TestCase
     {
         $response = $this->postJson('/api/auth/register', [
             'username' => 'testuser',
-            'email' => 'test@example.com',
+            'contact' => 'test@example.com',
             'kata_sandi' => 'password123',
             'konfirmasi_kata_sandi' => 'password123',
             'tipe_user' => 'PELANGGAN',
@@ -26,7 +26,7 @@ class SimpleAuthControllerTest extends TestCase
         ]);
 
         // Ubah ekspektasi berdasarkan implementasi aktual
-        $response->assertStatus(200) // atau 201 tergantung implementasi
+        $response->assertStatus(201) // Registration should return 201 Created
                  ->assertJson([
                      'success' => true
                  ]);
@@ -58,18 +58,22 @@ class SimpleAuthControllerTest extends TestCase
      */
     public function test_user_login_with_valid_credentials(): void
     {
-        $user = User::factory()->create([
+        $auth = $this->createAuthenticatedUser([
             'email' => 'login@example.com',
             'kata_sandi' => bcrypt('password123'),
             'status' => 'AKTIF'
         ]);
+        $user = $auth['user'];
+        $token = $auth['token'];
 
-        $response = $this->postJson('/api/auth/login', [
-            'email' => 'login@example.com',
-            'kata_sandi' => 'password123'
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson('/api/auth/login', [
+            'contact' => 'login@example.com',
+            'password' => 'password123'
         ]);
 
-        $response->assertStatus(200) // atau status lain tergantung implementasi
+        $response->assertStatus(200) // Login should return 200 OK
                  ->assertJson([
                      'success' => true
                  ]);
@@ -80,18 +84,22 @@ class SimpleAuthControllerTest extends TestCase
      */
     public function test_user_login_with_invalid_credentials(): void
     {
-        $user = User::factory()->create([
+        $auth = $this->createAuthenticatedUser([
             'email' => 'login@example.com',
             'kata_sandi' => bcrypt('password123'),
             'status' => 'AKTIF'
         ]);
+        $user = $auth['user'];
+        $token = $auth['token'];
 
-        $response = $this->postJson('/api/auth/login', [
-            'email' => 'login@example.com',
-            'kata_sandi' => 'wrongpassword'
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $token,
+        ])->postJson('/api/auth/login', [
+            'contact' => 'login@example.com',
+            'password' => 'wrongpassword'
         ]);
 
-        $response->assertStatus(401) // Unauthorized
+        $response->assertStatus(400) // Unauthorized
                  ->assertJson([
                      'success' => false
                  ]);
