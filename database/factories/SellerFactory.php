@@ -36,8 +36,8 @@ class SellerFactory extends Factory
             'catatan_verifikasi' => fake()->sentence(),
             'rating_toko' => fake()->randomFloat(2, 1, 5),
             'total_penjualan' => fake()->numberBetween(0, 1000),
-            'dibuat_pada' => fake()->dateTime(),
-            'diperbarui_pada' => fake()->dateTime(),
+            'dibuat_pada' => now(),
+            'diperbarui_pada' => now(),
         ];
     }
 }

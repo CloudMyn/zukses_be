@@ -28,10 +28,8 @@ class DeviceFactory extends Factory
             'push_token' => fake()->sha256,
             'adalah_device_terpercaya' => fake()->boolean(),
             'terakhir_aktif_pada' => fake()->dateTime(),
-            'dibuat_pada' => fake()->dateTime(),
-            'diperbarui_pada' => fake()->dateTime(),
-            // Virtual attributes for testing
-            'is_trusted' => fake()->boolean(),
+            'dibuat_pada' => now(),
+            'diperbarui_pada' => now(),
         ];
     }
 }

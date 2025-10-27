@@ -15,7 +15,10 @@
       "Bash(composer dump-autoload:*)",
       "Bash(curl:*)",
       "Read(//d/NAT/project/zukses/**)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(php:*)",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

@@ -80,6 +80,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         try {
+            // Check if user is admin
+            if (Auth::user()->tipe_user !== 'ADMIN') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses ke resource ini'
+                ], 403);
+            }
+
             $validatedData = $request->validate([
                 'username' => 'required|string|unique:users,username',
                 'email' => 'nullable|email|unique:users,email',
@@ -239,16 +247,8 @@ class UserController extends Controller
                 ], 404);
             }
 
-            // Hapus semua token Sanctum
-            $user->tokens()->delete();
-
-            // Hapus data terkait pengguna yang ada (gunakan safe delete)
-            try {
-                $user->verifications()->delete();
-                $user->devices()->delete();
-            } catch (\Exception $e) {
-                // Ignore relationship errors for non-existent relationships
-            }
+            // Note: Sistem menggunakan JWT, bukan Sanctum, jadi tidak ada token relationships
+            // Jika diperlukan, bisa menambahkan token invalidation logic
 
             // Hapus pengguna
             $user->delete();
@@ -333,17 +333,21 @@ class UserController extends Controller
             $user->tokens()->delete();
 
             // Hapus data terkait pengguna
-            $user->sellers()->delete();
-            $user->addresses()->delete();
-            $user->verifications()->delete();
-            $user->devices()->delete();
-            $user->reviews()->delete();
-            $user->activities()->delete();
-            $user->searchHistories()->delete();
-            $user->notifications()->delete();
-            $user->carts()->delete();
-            $user->orders()->delete();
-            $user->cartItems()->delete();
+            try {
+                $user->sellers()->delete();
+                $user->addresses()->delete();
+                $user->verifications()->delete();
+                $user->devices()->delete();
+                $user->reviews()->delete();
+                $user->activities()->delete();
+                $user->searchHistories()->delete();
+                $user->notifications()->delete();
+                $user->carts()->delete();
+                $user->orders()->delete();
+                $user->cartItems()->delete();
+            } catch (\Exception $e) {
+                // Ignore relationship errors for non-existent relationships
+            }
 
             // Hapus pengguna
             $user->delete();

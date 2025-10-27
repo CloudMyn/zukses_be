@@ -20,7 +20,7 @@ class Device extends Model
      *
      * @var string
      */
-    protected $table = 'tb_perangkat_pengguna';
+    protected $table = 'devices';
 
     /**
      * The attributes that are mass assignable.

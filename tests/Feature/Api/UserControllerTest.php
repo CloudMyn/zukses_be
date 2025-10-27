@@ -308,13 +308,14 @@ class UserControllerTest extends TestCase
      */
     public function test_get_other_user_profile(): void
     {
-        // Create two users
+        // Create two users first
         $user1 = User::factory()->create();
         $user2 = User::factory()->create();
         
-        $auth = $this->createAuthenticatedUser($user1->toArray());
-        $token = $auth['token'];
-
+        // Create authentication but ensure we're using the existing user1
+        // Use getJwtHeaders which generates a token for an existing user
+        $token = \Tymon\JWTAuth\Facades\JWTAuth::fromUser($user1);
+        
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
         ])->getJson("/api/users/{$user2->id}");

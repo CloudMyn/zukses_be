@@ -36,7 +36,7 @@ class CategoryProductFactory extends Factory
 
         return [
             'nama_kategori' => $name,
-            'slug_kategori' => str_slug($name),
+            'slug_kategori' => \Illuminate\Support\Str::slug($name),
             'deskripsi_kategori' => fake()->paragraph(3),
             'gambar_kategori' => 'categories/' . fake()->uuid() . '.jpg',
             'icon_kategori' => 'categories/icons/' . fake()->uuid() . '.svg',

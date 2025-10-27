@@ -15,6 +15,12 @@ class ActualAuthControllerTest extends TestCase
      */
     public function test_user_login_with_actual_required_fields(): void
     {
+        // Create a test user first
+        $user = \App\Models\User::factory()->create([
+            'email' => 'test@example.com',
+            'kata_sandi' => \Illuminate\Support\Facades\Hash::make('password123')
+        ]);
+
         $response = $this->postJson('/api/auth/login', [
             'contact' => 'test@example.com',  // Based on actual implementation
             'password' => 'password123',
@@ -23,10 +29,9 @@ class ActualAuthControllerTest extends TestCase
             'operating_system' => 'Windows'
         ]);
 
-        // This might succeed or return validation for other fields
-        $response->assertStatus(200) // or 401 for invalid credentials
+        $response->assertStatus(200)
                  ->assertJson([
-                     'success' => true  // or false based on credentials
+                     'success' => true
                  ]);
     }
 

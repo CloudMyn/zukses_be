@@ -15,7 +15,7 @@ class DeviceController extends Controller
     public function index()
     {
         try {
-            $devices = Device::paginate(15);
+            $devices = Device::where('id_user', auth()->id())->paginate(15);
             return response()->json([
                 'success' => true,
                 'message' => 'Data perangkat berhasil diambil',
@@ -43,7 +43,7 @@ class DeviceController extends Controller
         try {
             $validatedData = $request->validate([
                 'id_user' => 'sometimes|required|exists:users,id',
-                'device_id' => 'required|string|unique:tb_perangkat_pengguna,device_id',
+                'device_id' => 'required|string|unique:devices,device_id',
                 'device_type' => 'required|in:mobile,tablet,desktop,tv,MOBILE,TABLET,DESKTOP,TV',
                 'device_name' => 'required|string',
                 'operating_system' => 'sometimes|required|string',
@@ -119,7 +119,7 @@ class DeviceController extends Controller
         try {
             $validatedData = $request->validate([
                 'id_user' => 'sometimes|required|exists:users,id',
-                'device_id' => 'sometimes|required|string|unique:tb_perangkat_pengguna,device_id,' . $device->id,
+                'device_id' => 'sometimes|required|string|unique:devices,device_id,' . $device->id,
                 'device_type' => 'sometimes|required|in:mobile,tablet,desktop,tv,MOBILE,TABLET,DESKTOP,TV',
                 'device_name' => 'sometimes|required|string',
                 'operating_system' => 'sometimes|required|string',

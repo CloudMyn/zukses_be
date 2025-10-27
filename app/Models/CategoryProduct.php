@@ -120,13 +120,13 @@ class CategoryProduct extends Model
 
         // Auto-generate slug if not provided
         if (empty($this->slug_kategori)) {
-            $this->attributes['slug_kategori'] = str_slug($value);
+            $this->attributes['slug_kategori'] = \Illuminate\Support\Str::slug($value);
         }
     }
 
     public function setSlugKategoriAttribute($value)
     {
-        $this->attributes['slug_kategori'] = str_slug($value);
+        $this->attributes['slug_kategori'] = \Illuminate\Support\Str::slug($value);
     }
 
     public function getFullImagePathAttribute()
@@ -236,7 +236,7 @@ class CategoryProduct extends Model
 
     public static function generateUniqueSlug($nama, $excludeId = null)
     {
-        $slug = str_slug($nama);
+        $slug = \Illuminate\Support\Str::slug($nama);
         $originalSlug = $slug;
         $counter = 1;
 

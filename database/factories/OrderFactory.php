@@ -20,8 +20,8 @@ class OrderFactory extends Factory
             'nomor_pesanan' => 'ORD-' . $this->faker->unique()->numerify('########'),
             'id_customer' => $user->id,
             'id_alamat_pengiriman' => null, // Will be set when address is created
-            'status_pesanan' => $this->faker->randomElement(['MENUNGGU_PEMBAYARAN', 'DIBAYAR', 'DIKEMAS', 'DIKIRIM', 'SELESAI', 'BATAL', 'DIKEMBALIKAN']),
-            'status_pembayaran' => $this->faker->randomElement(['BELUM_DIBAYAR', 'SUDAH_DIBAYAR', 'KADALUARSA', 'DIBATALKAN']),
+            'status_pesanan' => $this->faker->randomElement(['baru', 'dikonfirmasi', 'diproses', 'dikirim', 'selesai', 'dibatalkan']),
+            'status_pembayaran' => $this->faker->randomElement(['belum_dibayar', 'dibayar', 'gagal', 'dibatalkan']),
             'total_items' => $this->faker->numberBetween(1, 10),
             'total_berat' => $this->faker->randomFloat(2, 0.1, 20.0),
             'subtotal_produk' => $this->faker->randomFloat(2, 50000, 5000000),

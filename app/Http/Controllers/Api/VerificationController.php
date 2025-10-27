@@ -15,8 +15,19 @@ class VerificationController extends Controller
     public function index()
     {
         try {
-            $verifications = Verification::paginate(15);
-            return VerificationResource::collection($verifications);
+            $user = auth()->user();
+            $verifications = Verification::where('id_user', $user->id)->paginate(15);
+            return response()->json([
+                'success' => true,
+                'message' => 'Data verifikasi berhasil diambil',
+                'data' => VerificationResource::collection($verifications),
+                'pagination' => [
+                    'current_page' => $verifications->currentPage(),
+                    'last_page' => $verifications->lastPage(),
+                    'per_page' => $verifications->perPage(),
+                    'total' => $verifications->total()
+                ]
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -31,15 +42,27 @@ class VerificationController extends Controller
     public function store(Request $request)
     {
         try {
+            $request_data = $request->all();
+            
             $validatedData = $request->validate([
-                'id_user' => 'nullable|exists:users,id',
                 'jenis_verifikasi' => 'required|in:EMAIL,TELEPON,KTP,NPWP',
-                'nilai_verifikasi' => 'required|string',
+                'nilai_verifikasi' => 'required_without:nomor_verifikasi|string',
+                'nomor_verifikasi' => 'required_without:nilai_verifikasi|string', // Accept nomor_verifikasi as alternative to nilai_verifikasi
                 'kode_verifikasi' => 'required|string',
                 'kedaluwarsa_pada' => 'required|date',
                 'telah_digunakan' => 'required|boolean',
                 'jumlah_coba' => 'required|integer|min:0',
             ]);
+
+            // Set the authenticated user ID
+            $user = auth()->user();
+            $validatedData['id_user'] = $user->id;
+
+            // Handle field name mapping - nomor_verifikasi in request maps to nilai_verifikasi in DB
+            if (isset($validatedData['nomor_verifikasi'])) {
+                $validatedData['nilai_verifikasi'] = $validatedData['nomor_verifikasi'];
+                unset($validatedData['nomor_verifikasi']);
+            }
 
             $verification = Verification::create($validatedData);
 
@@ -62,7 +85,11 @@ class VerificationController extends Controller
     public function show(Verification $verification)
     {
         try {
-            return new VerificationResource($verification);
+            return response()->json([
+                'success' => true,
+                'message' => 'Detail verifikasi berhasil diambil',
+                'data' => new VerificationResource($verification)
+            ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

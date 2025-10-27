@@ -23,10 +23,12 @@ class DeviceResource extends JsonResource
             'device_id' => $this->device_id,
             'device_type' => $this->device_type,
             'device_name' => $this->device_name,
+            'operating_system' => $this->operating_system,
+            'app_version' => $this->app_version,
             'is_trusted' => $this->is_trusted,
-            'last_used_at' => $this->last_used_at,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'last_used_at' => $this->terakhir_aktif_pada,
+            'created_at' => $this->dibuat_pada,
+            'updated_at' => $this->diperbarui_pada,
         ];
     }
 }

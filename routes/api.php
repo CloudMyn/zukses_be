@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PromosiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,17 +62,27 @@ Route::middleware('jwt.verify')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Public Seller Routes
+Route::get('/sellers', [\App\Http\Controllers\Api\SellerController::class, 'index']);
+Route::get('/sellers/{seller}', [\App\Http\Controllers\Api\SellerController::class, 'show']);
+Route::get('/sellers/{seller}/products', [\App\Http\Controllers\Api\SellerController::class, 'products']);
+Route::get('/sellers/{seller}/reviews', [\App\Http\Controllers\Api\SellerController::class, 'reviews']);
+Route::get('/sellers/{seller}/ratings', [\App\Http\Controllers\Api\SellerController::class, 'ratings']);
+
 // Phase 1: Core User Management APIs
 Route::middleware('jwt.verify')->group(function () {
     Route::apiResource('users', UserController::class);
-    
-    Route::apiResource('sellers', \App\Http\Controllers\Api\SellerController::class);
-    
+
+    // Protected Seller Routes (store, update, destroy)
+    Route::post('/sellers', [\App\Http\Controllers\Api\SellerController::class, 'store']);
+    Route::put('/sellers/{seller}', [\App\Http\Controllers\Api\SellerController::class, 'update']);
+    Route::delete('/sellers/{seller}', [\App\Http\Controllers\Api\SellerController::class, 'destroy']);
+
     Route::apiResource('devices', \App\Http\Controllers\Api\DeviceController::class);
     Route::post('/devices/{device}/trust', [\App\Http\Controllers\Api\DeviceController::class, 'trust']);
-    
+
     Route::apiResource('verifications', \App\Http\Controllers\Api\VerificationController::class);
-    
+
     Route::apiResource('sessions', \App\Http\Controllers\Api\SessionController::class);
 });
 
@@ -164,6 +175,10 @@ Route::middleware('jwt.verify')->group(function () {
     Route::apiResource('seller-reports', \App\Http\Controllers\Api\SellerReportController::class);
     
     Route::apiResource('sales-reports', \App\Http\Controllers\Api\SalesReportController::class);
+    
+    // Promotion management routes
+    Route::apiResource('promotions', PromosiController::class);
+    Route::post('promotions/validate', [PromosiController::class, 'validatePromo']);
 });
 
 // Phase 9: Chat System APIs
